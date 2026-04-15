@@ -1,42 +1,51 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Uçan Balon - Kitap Okuma Takibi</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uçan Balon - Kitap Okuma Takibi</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f8ff; padding: 20px; }
+        .container { max-width: 400px; margin: 0 auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; }
+        input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background: #2980b9; }
+        .info-text { font-size: 12px; color: #7f8c8d; text-align: center; margin-bottom: 15px; }
+    </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Öğrenci / Veli Girişi</h2>
-    <input type="email" id="email" placeholder="E-posta Adresi">
+    <h2>Uçan Balon 🎈</h2>
+    <p class="info-text">Öğrencinin balonu okuduğu sayfa kadar yükselecek!</p>
+    
+    <input type="text" id="ogrenciAdSoyad" placeholder="Öğrencinin Adı Soyadı">
+    <input type="text" id="takmaAd" placeholder="Balon İçin Takma Ad (Rumuz)">
+    
+    <input type="text" id="sehir" placeholder="Yaşadığı İl">
+    <input type="text" id="ilce" placeholder="İlçe">
+    <input type="text" id="okul" placeholder="Okul Adı">
+    <select id="sinif">
+        <option value="">Sınıf Seçiniz</option>
+        <option value="1">1. Sınıf</option>
+        <option value="2">2. Sınıf</option>
+        <option value="3">3. Sınıf</option>
+        <option value="4">4. Sınıf</option>
+    </select>
+
+    <hr>
+    <input type="email" id="email" placeholder="Veli E-posta">
     <input type="password" id="password" placeholder="Şifre">
-    <div class="button-group">
-        <button onclick="login()">Giriş Yap</button>
-        <button onclick="register()" class="secondary-btn">Kayıt Ol</button>
-    </div>
-
-    <hr>
-
-    <h2>Günlük Sayfa Girişi</h2>
-    <input type="number" id="pages" placeholder="Bugün kaç sayfa okudun?">
-    <button onclick="addReading()">Veriyi Kaydet</button>
-
-    <hr>
-
-    <h2>🏆 Sınıf Sıralaması</h2>
-    <ul id="leaderboard">
-        <li>Sıralamayı görmek için giriş yapın...</li>
-    </ul>
+    
+    <button onclick="register()">Kaydı Tamamla ve Uçuşa Başla</button>
 </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <script src="app.js"></script>
-</body>
+<script src="app.js"></script>
 
 </body>
 </html>
