@@ -1,60 +1,28 @@
-// 1. Firebase Yapılandırması
-const firebaseConfig = {
-  apiKey: "AIzaSyAYCVekQN3oOh4_2K0KmovLMW9O6xWaH-8",
-  authDomain: "ucurbalonu.firebaseapp.com",
-  projectId: "ucurbalonu",
-  storageBucket: "ucurbalonu.firebasestorage.app",
-  messagingSenderId: "677201903733",
-  appId: "1:677201903733:web:f5708b28f410ae7036b83c",
-  measurementId: "G-YYRX592P4Q"
-};
-
-// 2. Firebase'i Başlat
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-// 3. Kayıt Ol Fonksiyonu (Veli Kaydı + Öğrenci Profili)
 window.register = function() {
-    // Formdaki tüm verileri alıyoruz
-    const adSoyad = document.getElementById('ogrenciAdSoyad').value;
-    const takmaAd = document.getElementById('takmaAd').value;
-    const sehir = document.getElementById('sehir').value;
-    const ilce = document.getElementById('ilce').value;
-    const okul = document.getElementById('okul').value;
-    const sinif = document.getElementById('sinif').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    const adSoyad = document.getElementById('ogrenciAdSoyad').value;
+    const takmaAd = document.getElementById('takmaAd').value;
 
-    // Basit bir boş alan kontrolü
-    if (!adSoyad || !takmaAd || !email || !password) {
-        alert("Lütfen temel bilgileri boş bırakma kanka! 🎈");
-        return;
-    }
-
-    // Firebase Auth ile Veli Hesabı Oluşturma
     auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
             const user = userCredential.user;
+            console.log("Kullanıcı oluşturuldu, UID:", user.uid);
             
-            // Firestore'da öğrenci dosyasını oluşturma
+            // 🔥 DEĞİŞİKLİK BURADA: Veriyi 'set' ile doğrudan basıyoruz
             return db.collection("users").doc(user.uid).set({
-                veliEmail: email,
                 ogrenciAdSoyad: adSoyad,
-                balonEtiketi: takmaAd, // Balonun yanında bu görünecek
-                konum: { sehir: sehir, ilce: ilce },
-                okulBilgisi: { okul: okul, sinif: sinif },
-                balonYuksekligi: 0, // Bu değer okunan sayfa sayısına göre artacak
+                balonEtiketi: takmaAd,
+                veliEmail: email,
+                balonYuksekligi: 0,
                 kayitTarihi: firebase.firestore.FieldValue.serverTimestamp()
             });
         })
         .then(() => {
-            alert("Harika! Kayıt başarılı. Öğrencinin balonu pistte bekliyor! 🚀");
+            alert("Vee işte bu! Veritabanı kaydı da tamam kanka. 🎈");
         })
         .catch((error) => {
-            alert("Bir sorun çıktı kanka: " + error.message);
+            console.error("Hata Detayı:", error.code, error.message);
+            alert("Eyvah! Bir hata: " + error.message);
         });
 };
