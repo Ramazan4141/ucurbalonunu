@@ -7,15 +7,15 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f8ff; padding: 20px; display: flex; justify-content: center; }
         .container { max-width: 450px; width: 100%; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2, h3 { text-align: center; color: #2c3e50; }
+        h2, h3 { text-align: center; color: #2c3e50; margin-top: 0; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 10px; font-weight: bold; }
         .btn-blue { background: #3498db; }
         .btn-green { background: #2ecc71; }
         .btn-yellow { background: #f1c40f; color: #333; }
         .btn-red { background: #e74c3c; margin-top: 20px; font-size: 12px; }
+        .row { display: flex; gap: 10px; }
         
-        /* GÖKYÜZÜ SAHNESİ */
         #sky {
             position: relative;
             width: 100%;
@@ -32,10 +32,10 @@
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            width: 50px;
+            width: 55px;
             transition: bottom 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .height-display { font-size: 22px; color: #2980b9; font-weight: bold; margin-bottom: 10px; text-align: center;}
+        .height-display { font-size: 22px; color: #2980b9; font-weight: bold; text-align: center;}
     </style>
 </head>
 <body>
@@ -46,11 +46,34 @@
             <h2>Yeni Kayıt 🎈</h2>
             <input type="text" id="ogrenciAdSoyad" placeholder="Öğrencinin Adı Soyadı">
             <input type="text" id="takmaAd" placeholder="Balon İçin Takma Ad">
+            
+            <div class="row">
+                <input type="text" id="sehir" placeholder="İl">
+                <input type="text" id="ilce" placeholder="İlçe">
+            </div>
+            
+            <input type="text" id="okul" placeholder="Okul Adı">
+            
+            <div class="row">
+                <select id="sinif">
+                    <option value="">Sınıf</option>
+                    <option value="1">1. Sınıf</option>
+                    <option value="2">2. Sınıf</option>
+                    <option value="3">3. Sınıf</option>
+                    <option value="4">4. Sınıf</option>
+                </select>
+                <select id="sube">
+                    <option value="">Şube</option>
+                </select>
+            </div>
+
             <input type="email" id="email" placeholder="Veli E-posta">
             <input type="password" id="password" placeholder="Şifre">
-            <button class="btn-blue" onclick="register()">Kaydı Tamamla</button>
+            <button class="btn-blue" onclick="register()">Kaydı Tamamla 🚀</button>
         </div>
-        <hr>
+        
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
+        
         <div id="login-section">
             <h3>Veli Girişi</h3>
             <input type="email" id="loginEmail" placeholder="E-posta">
@@ -68,13 +91,14 @@
         </div>
 
         <div class="height-display">Yükseklik: <span id="display-height">0</span> Metre</div>
+        <p style="text-align:center; font-size:12px; color:#7f8c8d;">(Okunan her sayfa balonu 2 metre yükseltir)</p>
         
         <div id="action-area">
             <input type="number" id="sayfaSayisi" placeholder="Bugün kaç sayfa okundu?">
             <button class="btn-yellow" onclick="yukseklikArtir()">Sayfaları Gönder 🚀</button>
         </div>
         
-        <p id="lock-msg" style="display:none; color: #e67e22; font-weight: bold; margin-top: 15px;">
+        <p id="lock-msg" style="display:none; color: #e67e22; font-weight: bold; margin-top: 15px; text-align: center; background: #fff3cd; padding: 10px; border-radius: 8px;">
             ⚠️ Bugün zaten giriş yaptınız. Yarın tekrar bekliyoruz!
         </p>
 
@@ -86,5 +110,17 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="app.js"></script>
+
+<script>
+    // Şube harflerini otomatik doldur (A'dan S'ye)
+    const subeSelect = document.getElementById('sube');
+    const harfler = "ABCÇDEFGĞHIİJKLMNOÖPRS"; 
+    for (let i = 0; i < harfler.length; i++) {
+        let option = document.createElement('option');
+        option.value = harfler[i]; option.text = harfler[i];
+        subeSelect.appendChild(option);
+    }
+</script>
+
 </body>
 </html>
