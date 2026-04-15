@@ -20,19 +20,23 @@ auth.onAuthStateChanged((user) => {
 window.register = function() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const takmaAd = document.getElementById('takmaAd').value;
-    const sinif = document.getElementById('sinif').value;
-    const sube = document.getElementById('sube').value;
+    const data = {
+        ogrenciAdSoyad: document.getElementById('ogrenciAdSoyad').value,
+        balonEtiketi: document.getElementById('takmaAd').value,
+        okulBilgisi: { 
+            sinif: document.getElementById('sinif').value, 
+            sube: document.getElementById('sube').value,
+            okul: document.getElementById('okul').value
+        },
+        konum: { sehir: document.getElementById('sehir').value, ilce: document.getElementById('ilce').value },
+        balonYuksekligi: 0,
+        sonGirisTarihi: "",
+        veliEmail: email
+    };
 
     auth.createUserWithEmailAndPassword(email, password).then((u) => {
-        return db.collection("users").doc(u.user.uid).set({
-            balonEtiketi: takmaAd,
-            balonYuksekligi: 0,
-            sonGirisTarihi: "",
-            okulBilgisi: { sinif: sinif, sube: sube },
-            veliEmail: email
-        });
-    }).catch(error => alert(error.message));
+        return db.collection("users").doc(u.user.uid).set(data);
+    }).catch(e => alert(e.message));
 };
 
 window.login = function() {
@@ -47,42 +51,60 @@ function panelGuncelle(uid) {
             document.getElementById('user-panel').style.display = 'block';
             document.getElementById('welcome-msg').innerText = "Selam " + data.balonEtiketi + "! 🎈";
             document.getElementById('display-height').innerText = data.balonYuksekligi;
-            
-            // Balon Hareketi
-            const pxPos = 20 + (data.balonYuksekligi * 2);
-            document.getElementById('balloon').style.bottom = Math.min(pxPos, 210) + "px";
 
-            // Kilit Kontrolü
             const bugun = new Date().toLocaleDateString();
             if (data.sonGirisTarihi === bugun) {
                 document.getElementById('action-area').style.display = 'none';
                 document.getElementById('lock-msg').style.display = 'block';
             }
 
-            // Arkadaşları Getir
-            arkadaslariListele(data.okulBilgisi.sinif, data.okulBilgisi.sube, uid);
+            // Sınıf Arkadaşlarını hem listele hem gökyüzüne çiz
+            arkadaslariGoster(data.okulBilgisi.sinif, data.okulBilgisi.sube, uid);
         }
     });
 }
 
-function arkadaslariListele(sinif, sube, myUid) {
+function arkadaslariGoster(sinif, sube, myUid) {
+    const sky = document.getElementById('balloon-container');
+    const list = document.getElementById('leaderboard-list');
+
     db.collection("users")
         .where("okulBilgisi.sinif", "==", sinif)
         .where("okulBilgisi.sube", "==", sube)
         .get().then((querySnapshot) => {
-            const listDiv = document.getElementById('leaderboard-list');
-            listDiv.innerHTML = "";
-            let arkadaslar = [];
-            querySnapshot.forEach(doc => arkadaslar.push({id: doc.id, ...doc.data()}));
+            sky.innerHTML = "";
+            list.innerHTML = "";
+            let items = [];
+            querySnapshot.forEach(doc => items.push({id: doc.id, ...doc.data()}));
             
-            // Yüksekliğe göre sırala
-            arkadaslar.sort((a,b) => b.balonYuksekligi - a.balonYuksekligi);
+            // Sıralama
+            items.sort((a,b) => b.balonYuksekligi - a.balonYuksekligi);
 
-            arkadaslar.forEach(a => {
-                const item = document.createElement('div');
-                item.className = "leader-item" + (a.id === myUid ? " me" : "");
-                item.innerHTML = `<span>${a.id === myUid ? "⭐" : "🎈"} ${a.balonEtiketi}</span> <span>${a.balonYuksekligi}m</span>`;
-                listDiv.appendChild(item);
+            items.forEach((a, index) => {
+                // 1. Listeye Ekle
+                const li = document.createElement('div');
+                li.className = "leader-item" + (a.id === myUid ? " me" : "");
+                li.innerHTML = `<span>${index+1}. ${a.balonEtiketi}</span> <span>${a.balonYuksekligi} m</span>`;
+                list.appendChild(li);
+
+                // 2. Gökyüzüne Ekle
+                const bDiv = document.createElement('div');
+                bDiv.className = "remote-balloon";
+                
+                // Balonları yan yana dağıt (çakışmasınlar)
+                const spacing = Math.floor(sky.offsetWidth / (items.length + 1));
+                bDiv.style.left = (spacing * (index + 0.5)) + "px";
+                
+                // Yükseklik: 25px(yer) + (sayfa * 2px). Max 350px.
+                const bBottom = 25 + (a.balonYuksekligi * 2);
+                bDiv.style.bottom = Math.min(bBottom, 350) + "px";
+
+                const img = a.id === myUid ? 
+                    "https://cdn-icons-png.flaticon.com/512/1350/1350100.png" : 
+                    "https://cdn-icons-png.flaticon.com/512/1113/1113821.png";
+
+                bDiv.innerHTML = `<span class="balloon-label">${a.balonEtiketi}</span><img src="${img}">`;
+                sky.appendChild(bDiv);
             });
         });
 }
@@ -94,7 +116,7 @@ window.yukseklikArtir = function() {
     db.collection("users").doc(uid).update({
         balonYuksekligi: firebase.firestore.FieldValue.increment(sayfa),
         sonGirisTarihi: new Date().toLocaleDateString()
-    }).then(() => { panelGuncelle(uid); });
+    }).then(() => panelGuncelle(uid));
 };
 
 window.logout = function() { auth.signOut().then(() => location.reload()); };
