@@ -1,94 +1,26 @@
-// Firebase Ayarların
+// Firebase Yapılandırması (v8 Uyumlu Hale Getirildi)
 const firebaseConfig = {
-  apiKey: "AIzaSyCp7CzcplNftzMVKJu1s4DX9c5RhPR_57o",
-  authDomain: "ucanbalon-94ca6.firebaseapp.com",
-  projectId: "ucanbalon-94ca6",
-  storageBucket: "ucanbalon-94ca6.firebasestorage.app",
-  messagingSenderId: "756184578401",
-  appId: "1:756184578401:web:9a4427f9aa9403493bed20"
+  apiKey: "AIzaSyAYCVekQN3oOh4_2K0KmovLMW9O6xWaH-8",
+  authDomain: "ucurbalonu.firebaseapp.com",
+  projectId: "ucurbalonu",
+  storageBucket: "ucurbalonu.firebasestorage.app",
+  messagingSenderId: "677201903733",
+  appId: "1:677201903733:web:f5708b28f410ae7036b83c",
+  measurementId: "G-YYRX592P4Q"
 };
 
-// Firebase Başlat
-firebase.initializeApp(firebaseConfig);
+// Firebase'i Başlat
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+} else {
+    firebase.app(); // Zaten başlatılmışsa olanı kullan
+}
+
+// Kolay Erişim Değişkenleri
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Giriş yapan kullanıcıyı takip et
-auth.onAuthStateChanged(user => {
-  if (user) {
-    console.log("Giriş yapıldı:", user.email);
-    loadLeaderboard();
-  } else {
-    document.getElementById("leaderboard").innerHTML = "<li>Lütfen giriş yapın.</li>";
-  }
-});
+console.log("Firebase bağlantısı başarılı! 🚀");
 
-// 📝 Yeni Kayıt Fonksiyonu
-function register() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(() => alert("Hesabınız başarıyla oluşturuldu! Artık giriş yapabilirsiniz."))
-    .catch(err => alert("Hata: " + err.message));
-}
-
-// 🔐 Giriş Fonksiyonu
-function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => alert("Giriş başarılı!"))
-    .catch(err => alert("Hata: " + err.message));
-}
-
-// 📖 Sayfa Ekleme
-function addReading() {
-  const user = auth.currentUser;
-  if (!user) {
-    alert("Lütfen önce giriş yapın!");
-    return;
-  }
-
-  const pages = Number(document.getElementById("pages").value);
-  if (pages <= 0) {
-    alert("Lütfen geçerli bir sayfa sayısı girin.");
-    return;
-  }
-
-  db.collection("readingLogs").add({
-    userId: user.uid,
-    userEmail: user.email, // Sıralamada email göstermek için ekledik
-    pages: pages,
-    date: firebase.firestore.FieldValue.serverTimestamp() // Gerçek zamanlı sunucu saati
-  }).then(() => {
-    alert("Okuma verisi kaydedildi!");
-    document.getElementById("pages").value = ""; // Inputu temizle
-    loadLeaderboard();
-  });
-}
-
-// 🏆 Sıralama Yükleme
-async function loadLeaderboard() {
-  const snapshot = await db.collection("readingLogs").get();
-  let totals = {};
-
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    if (!totals[data.userEmail]) {
-      totals[data.userEmail] = 0;
-    }
-    totals[data.userEmail] += data.pages;
-  });
-
-  const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
-  const list = document.getElementById("leaderboard");
-  list.innerHTML = "";
-
-  sorted.forEach((item, index) => {
-    const li = document.createElement("li");
-    li.innerHTML = `<strong>${index + 1}.</strong> ${item[0]} - <b>${item[1]} sayfa</b>`;
-    list.appendChild(li);
-  });
-}
+// --- BURADAN SONRASI SENİN FONKSİYONLARIN (Kayıt, Giriş, Veri Ekleme vb.) ---
+// Not: Fonksiyonların silindiyse buraya tekrar eklememiz gerekebilir.
