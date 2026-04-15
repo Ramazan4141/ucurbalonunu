@@ -6,12 +6,14 @@
     <title>Uçan Balon - Kitap Okuma Takibi</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f8ff; padding: 20px; }
-        .container { max-width: 400px; margin: 0 auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #2c3e50; }
+        .container { max-width: 450px; margin: 0 auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
         input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 10px; }
         button:hover { background: #2980b9; }
-        .info-text { font-size: 12px; color: #7f8c8d; text-align: center; margin-bottom: 15px; }
+        .info-text { font-size: 13px; color: #7f8c8d; text-align: center; margin-bottom: 20px; }
+        .row { display: flex; gap: 10px; }
+        hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
     </style>
 </head>
 <body>
@@ -23,22 +25,30 @@
     <input type="text" id="ogrenciAdSoyad" placeholder="Öğrencinin Adı Soyadı">
     <input type="text" id="takmaAd" placeholder="Balon İçin Takma Ad (Rumuz)">
     
-    <input type="text" id="sehir" placeholder="Yaşadığı İl">
-    <input type="text" id="ilce" placeholder="İlçe">
+    <div class="row">
+        <input type="text" id="sehir" placeholder="İl">
+        <input type="text" id="ilce" placeholder="İlçe">
+    </div>
+
     <input type="text" id="okul" placeholder="Okul Adı">
-    <select id="sinif">
-        <option value="">Sınıf Seçiniz</option>
-        <option value="1">1. Sınıf</option>
-        <option value="2">2. Sınıf</option>
-        <option value="3">3. Sınıf</option>
-        <option value="4">4. Sınıf</option>
-    </select>
+    <div class="row">
+        <select id="sinif">
+            <option value="">Sınıf Seçiniz</option>
+            <option value="1">1. Sınıf</option>
+            <option value="2">2. Sınıf</option>
+            <option value="3">3. Sınıf</option>
+            <option value="4">4. Sınıf</option>
+        </select>
+        <select id="sube">
+            <option value="">Şube Seçiniz</option>
+            </select>
+    </div>
 
     <hr>
-    <input type="email" id="email" placeholder="Veli E-posta">
-    <input type="password" id="password" placeholder="Şifre">
+    <input type="email" id="email" placeholder="Veli E-posta Adresi">
+    <input type="password" id="password" placeholder="Şifre Oluşturun">
     
-    <button onclick="register()">Kaydı Tamamla ve Uçuşa Başla</button>
+    <button onclick="register()">Kaydı Tamamla ve Balonu Hazırla</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -46,6 +56,18 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script src="app.js"></script>
+
+<script>
+    const subeSelect = document.getElementById('sube');
+    const harfler = "ABCÇDEFGĞHIİJKLMNOÖPRS"; 
+    
+    for (let i = 0; i < harfler.length; i++) {
+        let option = document.createElement('option');
+        option.value = harfler[i];
+        option.text = harfler[i];
+        subeSelect.appendChild(option);
+    }
+</script>
 
 </body>
 </html>
