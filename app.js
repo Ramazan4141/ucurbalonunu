@@ -24,3 +24,23 @@ console.log("Firebase bağlantısı başarılı! 🚀");
 
 // --- BURADAN SONRASI SENİN FONKSİYONLARIN (Kayıt, Giriş, Veri Ekleme vb.) ---
 // Not: Fonksiyonların silindiyse buraya tekrar eklememiz gerekebilir.
+// Kayıt Olma Fonksiyonu (Hata veren 'register' ismiyle aynı olmalı)
+window.register = function() {
+    // HTML'deki input id'lerinin 'email' ve 'password' olduğunu varsayıyorum
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    if (email === "" || password === "") {
+        alert("Lütfen tüm alanları doldur kanka! 🎈");
+        return;
+    }
+
+    auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            alert("Kayıt Başarılı! Hoş geldin. 🚀");
+            console.log("Kullanıcı:", userCredential.user);
+        })
+        .catch((error) => {
+            alert("Hata: " + error.message);
+        });
+};
