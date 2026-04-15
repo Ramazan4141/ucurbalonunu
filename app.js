@@ -1,4 +1,4 @@
-// 1. Firebase Yapılandırması (Senin Proje Bilgilerin)
+// 1. Firebase Yapılandırması
 const firebaseConfig = {
   apiKey: "AIzaSyAYCVekQN3oOh4_2K0KmovLMW9O6xWaH-8",
   authDomain: "ucurbalonu.firebaseapp.com",
@@ -9,76 +9,63 @@ const firebaseConfig = {
   measurementId: "G-YYRX592P4Q"
 };
 
-// 2. Firebase'i Başlat (Hataları önlemek için önce kontrol ediyoruz)
+// 2. Firebase'i Başlat
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// Global Değişkenleri Tanımla (Fonksiyonların dışında olmalı ki her yer tanısın)
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-console.log("Firebase ve app.js başarıyla yüklendi! 🚀");
+console.log("Uçan Balon Sistemi Hazır! 🚀");
 
-// 3. Kayıt Ol Fonksiyonu (Veli Kaydı + Detaylı Öğrenci Profili)
+// 3. Kayıt Ol Fonksiyonu
 window.register = function() {
-    console.log("Kayıt butonuna basıldı...");
+    console.log("Kayıt işlemi başlatılıyor...");
 
-    // HTML'deki input id'lerini yakalıyoruz
-    // index.html dosyanla bu id'lerin tam eşleşmesi gerekir
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const adSoyadInput = document.getElementById('ogrenciAdSoyad');
-    const takmaAdInput = document.getElementById('takmaAd');
-    const sehirInput = document.getElementById('sehir');
-    const ilceInput = document.getElementById('ilce');
-    const okulInput = document.getElementById('okul');
-    const sinifInput = document.getElementById('sinif');
+    // Form verilerini al
+    const adSoyad = document.getElementById('ogrenciAdSoyad').value;
+    const takmaAd = document.getElementById('takmaAd').value;
+    const sehir = document.getElementById('sehir').value;
+    const ilce = document.getElementById('ilce').value;
+    const okul = document.getElementById('okul').value;
+    const sinif = document.getElementById('sinif').value;
+    const sube = document.getElementById('sube').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-    // Boş değer kontrolü için temel alanları alıyoruz
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    const adSoyad = adSoyadInput.value;
-    const takmaAd = takmaAdInput.value;
-
-    if (email === "" || password === "" || adSoyad === "" || takmaAd === "") {
-        alert("Lütfen temel bilgileri (Ad, Takma Ad, E-posta, Şifre) boş bırakma kanka! 🎈");
+    // Temel kontrol
+    if (!adSoyad || !takmaAd || !email || !password) {
+        alert("Lütfen gerekli alanları doldur kanka! 🎈");
         return;
     }
 
-    // A. Önce Kullanıcı Hesabını (Auth) Oluşturuyoruz
+    // Auth ile hesap oluştur
     auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
             const user = userCredential.user;
-            console.log("Kullanıcı oluşturuldu, UID:", user.uid);
             
-            // B. Şimdi Firestore Veritabanına Detayları Yazıyoruz
-            // Kullanıcı UID'sini döküman ismi yaparak her öğrenciyi benzersiz kılıyoruz
+            // Firestore'a detaylı kaydı yap
             return db.collection("users").doc(user.uid).set({
                 veliEmail: email,
                 ogrenciAdSoyad: adSoyad,
-                balonEtiketi: takmaAd, 
-                konum: { 
-                    sehir: sehirInput ? sehirInput.value : "", 
-                    ilce: ilceInput ? ilceInput.value : "" 
-                },
+                balonEtiketi: takmaAd,
+                konum: { sehir: sehir, ilce: ilce },
                 okulBilgisi: { 
-                    okul: okulInput ? okulInput.value : "", 
-                    sinif: sinifInput ? sinifInput.value : "" 
+                    okul: okul, 
+                    sinif: sinif,
+                    sube: sube 
                 },
-                balonYuksekligi: 0, // Başlangıçta balon yerde (0 sayfa)
+                balonYuksekligi: 0,
                 toplamOkunanSayfa: 0,
                 kayitTarihi: firebase.firestore.FieldValue.serverTimestamp()
             });
         })
         .then(() => {
-            // C. İşlem Başarılı
-            alert("Vee işte bu! Kayıt başarılı ve veritabanına eklendi. Balon uçuşa hazır! 🎈🚀");
-            console.log("Firestore kaydı başarıyla tamamlandı!");
+            alert("Harika! Kayıt başarılı. Balonun pistte seni bekliyor! 🎈🚀");
         })
         .catch((error) => {
-            // Hata durumunda (Örn: Zaten kayıtlı mail, zayıf şifre vb.)
-            console.error("Hata Detayı:", error.code, error.message);
-            alert("Bir sorun çıktı kanka: " + error.message);
+            alert("Hata: " + error.message);
+            console.error(error);
         });
 };
