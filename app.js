@@ -1,3 +1,4 @@
+// Firebase Ayarları
 const firebaseConfig = {
     apiKey: "AIzaSyAYCVekQN3oOh4_2K0KmovLMW9O6xWaH-8",
     authDomain: "ucurbalonu.firebaseapp.com",
@@ -8,6 +9,7 @@ const firebaseConfig = {
     measurementId: "G-YYRX592P4Q"
 };
 
+// Başlatma
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -96,13 +98,12 @@ const ilVerisi = {
     "Osmaniye": ["Bahçe", "Düziçi", "Hasanbeyli", "Kadirli", "Merkez", "Sumbas", "Toprakkale"],
     "Düzce": ["Akçakoca", "Cumayeri", "Çilimli", "Gölyaka", "Gümüşova", "Kaynaşlı", "Merkez", "Yığılca"]
 };
-
-
+// Fonksiyonlar
 function illeriDoldur() {
     const sehirSelect = document.getElementById("sehir");
     if(!sehirSelect) return;
     sehirSelect.innerHTML = '<option value="">İl Seçiniz</option>';
-    Object.keys(ilVerisi).sort((a, b) => a.localeCompare(b, 'tr')).forEach(il => {
+    Object.keys(ilVerisi).sort((a,b) => a.localeCompare(b,'tr')).forEach(il => {
         let opt = document.createElement("option"); opt.value = il; opt.textContent = il;
         sehirSelect.appendChild(opt);
     });
@@ -111,9 +112,9 @@ function illeriDoldur() {
 window.ilceleriYukle = function() {
     const sehir = document.getElementById("sehir").value;
     const ilceSelect = document.getElementById("ilce");
-    ilceSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
     if (sehir) {
         ilceSelect.disabled = false;
+        ilceSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
         ilVerisi[sehir].forEach(i => {
             let opt = document.createElement("option"); opt.value = i; opt.textContent = i;
             ilceSelect.appendChild(opt);
@@ -123,7 +124,6 @@ window.ilceleriYukle = function() {
 
 function okullariYukle() {
     const os = document.getElementById("okul");
-    if(!os) return;
     db.collection("sistem").doc("okulListesi").get().then(doc => {
         if(doc.exists) {
             os.innerHTML = '<option value="">Okul Seçiniz</option>';
@@ -135,22 +135,24 @@ function okullariYukle() {
     });
 }
 
+// OTURUM TAKİBİ (Giriş yapınca burası çalışır)
 auth.onAuthStateChanged(user => {
-    if (user) { panelGuncelle(user.uid); } 
-    else { 
-        document.getElementById('auth-area').style.display = 'block'; 
+    if (user) {
+        panelGuncelle(user.uid);
+    } else {
+        document.getElementById('auth-area').style.display = 'block';
         document.getElementById('user-panel').style.display = 'none';
         illeriDoldur(); okullariYukle();
     }
 });
 
+// KAYIT OL
 window.register = function() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const userObj = {
         ogrenciAdSoyad: document.getElementById('ogrenciAdSoyad').value,
         balonEtiketi: document.getElementById('takmaAd').value,
-        konum: { il: document.getElementById('sehir').value, ilce: document.getElementById('ilce').value },
         okulBilgisi: { 
             okul: document.getElementById('okul').value, 
             sinif: document.getElementById('sinif').value, 
@@ -159,15 +161,22 @@ window.register = function() {
         balonYuksekligi: 0,
         rol: "ogrenci"
     };
+
     auth.createUserWithEmailAndPassword(email, password)
         .then(res => db.collection("users").doc(res.user.uid).set(userObj))
-        .catch(e => alert(e.message));
+        .catch(e => alert("Kayıt Hatası: " + e.message));
 };
 
+// GİRİŞ YAP
 window.login = function() {
     const email = document.getElementById('loginEmail').value;
     const pass = document.getElementById('loginPassword').value;
-    auth.signInWithEmailAndPassword(email, pass).catch(e => alert(e.message));
+    
+    if(!email || !pass) { alert("Lütfen e-posta ve şifre girin."); return; }
+
+    auth.signInWithEmailAndPassword(email, pass)
+        .then(() => { console.log("Giriş başarılı!"); })
+        .catch(e => alert("Giriş Hatası: " + e.message));
 };
 
 function panelGuncelle(uid) {
@@ -180,15 +189,11 @@ function panelGuncelle(uid) {
         document.getElementById('display-height').innerText = data.balonYuksekligi;
 
         if(data.rol === 'admin') {
-            document.getElementById('admin-link-area').innerHTML = `<button onclick="window.location.href='admin.html'" style="background:black; color:white; margin-bottom:10px; width:100%; border-radius:8px; padding:10px;">⚙️ Admin Paneli</button>`;
+            document.getElementById('admin-link-area').innerHTML = `<button onclick="window.location.href='admin.html'" style="background:black; color:white; width:100%; border-radius:8px; padding:10px; margin-bottom:10px;">⚙️ Admin Paneli</button>`;
         }
         siralamayiGetir(data.okulBilgisi.sinif, data.okulBilgisi.sube);
     });
 }
-
-
-
-// app.js - siralamayiGetir kısmını bul ve bu fonksiyonla değiştir
 
 function siralamayiGetir(sinif, sube) {
     db.collection("users")
@@ -197,80 +202,21 @@ function siralamayiGetir(sinif, sube) {
       .get().then(qs => {
         const list = document.getElementById('leaderboard-list');
         const sky = document.getElementById('balloon-container');
-        
-        if(!list || !sky) return;
-
-        list.innerHTML = ""; 
-        sky.innerHTML = "";  
+        list.innerHTML = ""; sky.innerHTML = "";
         
         let users = [];
         qs.forEach(doc => users.push({id: doc.id, ...doc.data()}));
-        
-        // Puanı en yüksek olanı en başa alalım
         users.sort((a,b) => b.balonYuksekligi - a.balonYuksekligi);
 
         users.forEach((d, index) => {
-            // 1. Yazılı Liste
-            list.innerHTML += `<p>${index + 1}. ${d.balonEtiketi}: ${d.balonYuksekligi}m</p>`;
-
-            // 2. Görsel Balon
+            list.innerHTML += `<p>${index+1}. ${d.balonEtiketi}: ${d.balonYuksekligi}m</p>`;
+            
             const bDiv = document.createElement('div');
             bDiv.className = "remote-balloon";
-            
-            // YATAY DİZİLİM: Her balonu 50 piksel yana kaydırıyoruz
-            // İlk balon 10px soldan başlar, ikincisi 60px, üçüncüsü 110px...
             bDiv.style.left = (index * 50 + 10) + "px";
-            
-            // DİKEY YÜKSEKLİK: 300px'lik sky alanına sığması için 
-            // sayfa başı 1.2px yükselme verdim (Örn: 100 sayfa = 120px yükseklik)
-            // Balonun gökyüzünden çıkmaması için Math.min ile 240px'de sabitledim.
-            const bottomPos = Math.min(d.balonYuksekligi * 1.2, 240); 
-            bDiv.style.bottom = bottomPos + "px";
-
-            bDiv.innerHTML = `
-                <span class="balloon-label">${d.balonEtiketi}</span>
-                <img src="https://cdn-icons-png.flaticon.com/512/1350/1350100.png">
-            `;
-            
+            bDiv.style.bottom = Math.min(d.balonYuksekligi * 1.5, 240) + "px";
+            bDiv.innerHTML = `<span class="balloon-label">${d.balonEtiketi}</span><img src="https://cdn-icons-png.flaticon.com/512/1350/1350100.png">`;
             sky.appendChild(bDiv);
-        });
-    });
-}
-
-        list.innerHTML = ""; // Mevcut listeyi temizle
-        sky.innerHTML = "";  // Önce gökyüzünü temizle (balonlar üst üste binmesin)
-        
-        // Kullanıcı verilerini bir diziye topla ve puanına göre sırala
-        let arkadaslar = [];
-        qs.forEach(doc => arkadaslar.push({id: doc.id, ...doc.data()}));
-        arkadaslar.sort((a,b) => b.balonYuksekligi - a.balonYuksekligi);
-
-        // Her bir öğrenci için döngü başlat
-        arkadaslar.forEach((d, index) => {
-            // 1. Liste Kısmı (Mevcut 'p' stilini koruyoruz)
-            list.innerHTML += `<p>${index + 1}. ${d.balonEtiketi}: ${d.balonYuksekligi}m</p>`;
-
-            // 2. Görsel Balon Oluşturma
-            const balloonDiv = document.createElement('div');
-            balloonDiv.className = "remote-balloon"; // CSS'deki sınıf adı
-            
-            // Balonları yan yana dizelim (index'e göre sola kaydır)
-            // Çakışmamaları için index * 65px + 15px boşluk bırakıyoruz
-            balloonDiv.style.left = (index * 65 + 15) + "px";
-            
-            // Yüksekliği ayarla (bottomPos). Sayfa başına 1.5px yükseltiyoruz.
-            // Gökyüzü 300px olduğu için max 240px'e kadar uçsun (etiket sığsın diye).
-            const bottomPos = Math.min(d.balonYuksekligi * 1.5, 240); 
-            balloonDiv.style.bottom = bottomPos + "px";
-
-            // Balonun içini doldur (Etiket + Resim)
-            balloonDiv.innerHTML = `
-                <span class="balloon-label">${d.balonEtiketi}</span>
-                <img src="https://cdn-icons-png.flaticon.com/512/1350/1350100.png" alt="balon">
-            `;
-            
-            // Oluşturulan balonu gökyüzüne (sky div'ine) ekle
-            sky.appendChild(balloonDiv);
         });
     });
 }
@@ -284,4 +230,6 @@ window.yukseklikArtir = function() {
 };
 
 window.logout = function() { auth.signOut().then(() => location.reload()); };
+
+
 
