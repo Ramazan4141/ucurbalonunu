@@ -16,7 +16,6 @@
         .btn-red { background: #e74c3c; margin-top: 20px; font-size: 12px; }
         .row { display: flex; gap: 10px; }
         
-        /* 🎈 GÖKYÜZÜ VE DİNAMİK BALONLAR */
         #sky {
             position: relative;
             width: 100%;
@@ -28,28 +27,10 @@
             border: 2px solid #eee;
         }
         #ground { position: absolute; bottom: 0; width: 100%; height: 25px; background: #2ecc71; z-index: 10; }
-        
-        .remote-balloon {
-            position: absolute;
-            width: 45px;
-            transition: bottom 2s ease-out, left 1s ease-in-out;
-            text-align: center;
-            z-index: 5;
-        }
+        .remote-balloon { position: absolute; width: 45px; transition: bottom 2s ease-out, left 1s ease-in-out; text-align: center; z-index: 5; }
         .remote-balloon img { width: 100%; }
-        .balloon-label {
-            font-size: 9px;
-            font-weight: bold;
-            background: rgba(255,255,255,0.8);
-            padding: 1px 4px;
-            border-radius: 4px;
-            display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        .balloon-label { font-size: 9px; font-weight: bold; background: rgba(255,255,255,0.8); padding: 1px 4px; border-radius: 4px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* LİDERLİK LİSTESİ */
         #leaderboard-area { margin-top: 20px; background: #fdfdfd; padding: 15px; border-radius: 12px; border: 1px solid #eee; }
         #leaderboard-list { max-height: 150px; overflow-y: auto; }
         .leader-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #eee; font-size: 14px; }
@@ -65,8 +46,12 @@
             <input type="text" id="ogrenciAdSoyad" placeholder="Öğrenci Ad Soyad">
             <input type="text" id="takmaAd" placeholder="Görünecek Takma Ad">
             <div class="row">
-                <input type="text" id="sehir" placeholder="İl">
-                <input type="text" id="ilce" placeholder="İlçe">
+                <select id="sehir" onchange="ilceleriYukle()">
+                    <option value="">İl Seçiniz</option>
+                </select>
+                <select id="ilce" disabled>
+                    <option value="">İlçe Seçiniz</option>
+                </select>
             </div>
             <input type="text" id="okul" placeholder="Okul Adı">
             <div class="row">
@@ -92,28 +77,22 @@
 
     <div id="user-panel" style="display: none;">
         <h2 id="welcome-msg">Selam!</h2>
-        
         <div id="sky">
             <div id="ground"></div>
             <div id="balloon-container"></div>
         </div>
-
         <h3 style="color: #2980b9;">Senin Yüksekliğin: <span id="display-height">0</span> Metre</h3>
-        
         <div id="action-area">
             <input type="number" id="sayfaSayisi" placeholder="Bugün kaç sayfa okundu?">
             <button class="btn-yellow" onclick="yukseklikArtir()">Sayfaları Balona Yükle 🚀</button>
         </div>
-        
         <p id="lock-msg" style="display:none; color: #e67e22; font-weight: bold; text-align: center; background: #fff3cd; padding: 10px; border-radius: 8px;">
             ⚠️ Bugünlük rapor verildi. Yarın yeni sayfalarla gel!
         </p>
-
         <div id="leaderboard-area">
             <h4>🏆 Sınıf Sıralaması</h4>
             <div id="leaderboard-list">Yükleniyor...</div>
         </div>
-
         <button class="btn-red" onclick="logout()">Çıkış Yap</button>
     </div>
 </div>
@@ -121,8 +100,8 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="app.js"></script>
-<script>
+<script src="app.js"></script> <script>
+    // Şubeleri otomatik doldur (Kodu burada bıraktık)
     const subeSelect = document.getElementById('sube');
     const harfler = "ABCÇDEFGĞHIİJKLMNOÖPRS"; 
     for (let i = 0; i < harfler.length; i++) {
