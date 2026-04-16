@@ -3,112 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uçan Balon Yarışı 🎈</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f8ff; padding: 20px; display: flex; justify-content: center; }
-        .container { max-width: 500px; width: 100%; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2, h3, h4 { text-align: center; color: #2c3e50; margin-top: 0; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 10px; font-weight: bold; }
-        .btn-blue { background: #3498db; }
-        .btn-green { background: #2ecc71; }
-        .btn-yellow { background: #f1c40f; color: #333; }
-        .btn-red { background: #e74c3c; margin-top: 20px; font-size: 12px; }
-        .row { display: flex; gap: 10px; }
-        
-        #sky {
-            position: relative;
-            width: 100%;
-            height: 400px;
-            background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);
-            overflow: hidden;
-            border-radius: 15px;
-            margin: 20px 0;
-            border: 2px solid #eee;
-        }
-        #ground { position: absolute; bottom: 0; width: 100%; height: 25px; background: #2ecc71; z-index: 10; }
-        .remote-balloon { position: absolute; width: 45px; transition: bottom 2s ease-out, left 1s ease-in-out; text-align: center; z-index: 5; }
-        .remote-balloon img { width: 100%; }
-        .balloon-label { font-size: 9px; font-weight: bold; background: rgba(255,255,255,0.8); padding: 1px 4px; border-radius: 4px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        #leaderboard-area { margin-top: 20px; background: #fdfdfd; padding: 15px; border-radius: 12px; border: 1px solid #eee; }
-        #leaderboard-list { max-height: 150px; overflow-y: auto; }
-        .leader-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #eee; font-size: 14px; }
-        .me { background: #e8f4fd; font-weight: bold; border-radius: 8px; }
-    </style>
+    <title>Uçur Balonu - Okuma Takibi</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-<div class="container">
-    <div id="auth-area">
-        <div id="register-section">
-            <h2>Balonunu Oluştur 🎈</h2>
-            <input type="text" id="ogrenciAdSoyad" placeholder="Öğrenci Ad Soyad">
-            <input type="text" id="takmaAd" placeholder="Görünecek Takma Ad">
-            <div class="row">
+    <div class="container">
+        <div id="auth-area" style="display: none;">
+            <h1>🎈 Uçur Balonu</h1>
+            
+            <div class="form-box">
+                <h2>Kayıt Ol</h2>
+                <input type="text" id="ogrenciAdSoyad" placeholder="Öğrenci Ad Soyad">
+                <input type="text" id="takmaAd" placeholder="Balonuna Bir İsim Ver (Örn: Mavi Kuş)">
+                <input type="number" id="sinif" placeholder="Sınıf (Örn: 2)">
+                <input type="text" id="sube" placeholder="Şube (Örn: A)">
+                <input type="text" id="okul" placeholder="Okul Adı">
+                
                 <select id="sehir" onchange="ilceleriYukle()">
                     <option value="">İl Seçiniz</option>
                 </select>
                 <select id="ilce" disabled>
                     <option value="">İlçe Seçiniz</option>
                 </select>
+
+                <input type="email" id="email" placeholder="Veli E-posta">
+                <input type="password" id="password" placeholder="Şifre Oluştur">
+                <button onclick="register()">Kayıt Ol ve Başla</button>
             </div>
-            <input type="text" id="okul" placeholder="Okul Adı">
-            <div class="row">
-                <select id="sinif">
-                    <option value="">Sınıf</option>
-                    <option value="1">1. Sınıf</option><option value="2">2. Sınıf</option>
-                    <option value="3">3. Sınıf</option><option value="4">4. Sınıf</option>
-                </select>
-                <select id="sube"><option value="">Şube</option></select>
+
+            <hr>
+
+            <div class="form-box">
+                <h2>Giriş Yap</h2>
+                <input type="email" id="loginEmail" placeholder="E-posta">
+                <input type="password" id="loginPassword" placeholder="Şifre">
+                <button onclick="login()">Giriş Yap</button>
             </div>
-            <input type="email" id="email" placeholder="Veli E-posta">
-            <input type="password" id="password" placeholder="Şifre">
-            <button class="btn-blue" onclick="register()">Kayıt Ol ve Uçuşa Başla</button>
         </div>
-        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
-        <div id="login-section">
-            <h3>Veli Girişi</h3>
-            <input type="email" id="loginEmail" placeholder="E-posta">
-            <input type="password" id="loginPassword" placeholder="Şifre">
-            <button class="btn-green" onclick="login()">Giriş Yap</button>
+
+        <div id="user-panel" style="display: none;">
+            <header>
+                <h1 id="welcome-msg">Selam!</h1>
+                <button class="logout-btn" onclick="logout()">Çıkış Yap</button>
+            </header>
+
+            <div class="game-area">
+                <div class="sky" id="sky-area">
+                    <div id="balloon-container"></div>
+                </div>
+                
+                <div class="ground">
+                    <div class="stats">Balonun: <span id="display-height">0</span> metrede</div>
+                    
+                    <div id="action-area">
+                        <p>Bugün kaç sayfa kitap okudun?</p>
+                        <input type="number" id="sayfaSayisi" placeholder="Sayfa sayısı">
+                        <button onclick="yukseklikArtir()">Balonu Yükselt! 🚀</button>
+                    </div>
+                    
+                    <div id="lock-msg" style="display: none; color: #ffeb3b;">
+                        🌟 Bugünlük bu kadar! Yarın tekrar uçuralım.
+                    </div>
+                </div>
+            </div>
+
+            <div class="leaderboard">
+                <h3>Sınıf Sıralaması</h3>
+                <div id="leaderboard-list"></div>
+            </div>
         </div>
     </div>
 
-    <div id="user-panel" style="display: none;">
-        <h2 id="welcome-msg">Selam!</h2>
-        <div id="sky">
-            <div id="ground"></div>
-            <div id="balloon-container"></div>
-        </div>
-        <h3 style="color: #2980b9;">Senin Yüksekliğin: <span id="display-height">0</span> Metre</h3>
-        <div id="action-area">
-            <input type="number" id="sayfaSayisi" placeholder="Bugün kaç sayfa okundu?">
-            <button class="btn-yellow" onclick="yukseklikArtir()">Sayfaları Balona Yükle 🚀</button>
-        </div>
-        <p id="lock-msg" style="display:none; color: #e67e22; font-weight: bold; text-align: center; background: #fff3cd; padding: 10px; border-radius: 8px;">
-            ⚠️ Bugünlük rapor verildi. Yarın yeni sayfalarla gel!
-        </p>
-        <div id="leaderboard-area">
-            <h4>🏆 Sınıf Sıralaması</h4>
-            <div id="leaderboard-list">Yükleniyor...</div>
-        </div>
-        <button class="btn-red" onclick="logout()">Çıkış Yap</button>
-    </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="app.js"></script> <script>
-    // Şubeleri otomatik doldur (Kodu burada bıraktık)
-    const subeSelect = document.getElementById('sube');
-    const harfler = "ABCÇDEFGĞHIİJKLMNOÖPRS"; 
-    for (let i = 0; i < harfler.length; i++) {
-        let option = document.createElement('option');
-        option.value = harfler[i]; option.text = harfler[i];
-        subeSelect.appendChild(option);
-    }
-</script>
+    <script src="app.js"></script>
 </body>
 </html>
