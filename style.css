@@ -26,3 +26,38 @@ button:hover { background-color: #74b9ff; }
 }
 .leaderboard { text-align: left; margin-top: 20px; }
 .leaderboard p { background: #fff; padding: 10px; border-radius: 8px; margin: 5px 0; border-left: 5px solid #0984e3; font-size: 14px; }
+/* --- style.css DOSYASININ EN ALTINA EKLE --- */
+
+/* Balonların ana kapsayıcısının (sky) içinde serbestçe uçmasını sağlar */
+.sky {
+    position: relative; /* Bu çok önemli! Balonlar buna göre hizalanacak. */
+    overflow: hidden;   /* Balonlar gökyüzü alanından taşmasın */
+}
+
+/* Her bir görsel balonun yapısı */
+.remote-balloon {
+    position: absolute; /* Gökyüzünde serbestçe uçmaları için şart */
+    width: 60px;        /* Balonun genişliği */
+    z-index: 10;        /* Diğer öğelerin önünde görünsün */
+    transition: bottom 2s ease-out, left 1s ease-in-out; /* Uçma animasyonu */
+    text-align: center;
+}
+
+/* Balon resminin boyutu */
+.remote-balloon img {
+    width: 100%;
+    height: auto;
+}
+
+/* Balonun üzerindeki isim etiketi */
+.balloon-label {
+    background: rgba(255, 255, 255, 0.8); /* Yarı şeffaf beyaz arka plan */
+    padding: 2px 5px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: bold;
+    display: block; /* İsmi balon resminin üzerine alır */
+    white-space: nowrap; /* İsmin alt satıra geçmesini engeller */
+    margin-bottom: 3px; /* Etiket ile balon arası boşluk */
+    color: #333;
+}
