@@ -1,17 +1,22 @@
+// 1. Firebase Yapılandırması (Config)
 const firebaseConfig = {
-  apiKey: "AIzaSyAYCVekQN3oOh4_2K0KmovLMW9O6xWaH-8",
-  authDomain: "ucurbalonu.firebaseapp.com",
-  projectId: "ucurbalonu",
-  storageBucket: "ucurbalonu.firebasestorage.app",
-  messagingSenderId: "677201903733",
-  appId: "1:677201903733:web:f5708b28f410ae7036b83c",
-  measurementId: "G-YYRX592P4Q" // Bu satırı mutlaka ekle
+    apiKey: "AIzaSyAYCVekQN3oOh4_2K0KmovLMW9O6xWaH-8",
+    authDomain: "ucurbalonu.firebaseapp.com",
+    projectId: "ucurbalonu",
+    storageBucket: "ucurbalonu.firebasestorage.app",
+    messagingSenderId: "677201903733",
+    appId: "1:677201903733:web:f5708b28f410ae7036b83c",
+    measurementId: "G-YYRX592P4Q"
 };
 
-if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+// Firebase'i Başlat
+if (!firebase.apps.length) { 
+    firebase.initializeApp(firebaseConfig); 
+}
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// 2. İl ve İlçe Veri Seti
 const ilVerisi = {
     "Adana": ["Aladağ", "Ceyhan", "Çukurova", "Feke", "İmamoğlu", "Karaisalı", "Karataş", "Kozan", "Pozantı", "Saimbeyli", "Sarıçam", "Seyhan", "Tufanbeyli", "Yumurtalık", "Yüreğir"],
     "Adıyaman": ["Besni", "Çelikhan", "Gerger", "Gölbaşı", "Kahta", "Merkez", "Samsat", "Sincik", "Tut"],
@@ -40,7 +45,7 @@ const ilVerisi = {
     "Erzurum": ["Aşkale", "Aziziye", "Çat", "Hınıs", "Horasan", "İspir", "Karaçoban", "Karayazı", "Köprüköy", "Narman", "Oltu", "Olur", "Palandöken", "Pasinler", "Pazaryolu", "Şenkaya", "Tekman", "Tortum", "Uzundere", "Yakutiye"],
     "Eskişehir": ["Alpu", "Beylikova", "Çifteler", "Günyüzü", "Han", "İnönü", "Mahmudiye", "Mihalgazi", "Mihalıççık", "Odunpazarı", "Sarıcakaya", "Seyitgazi", "Sivrihisar", "Tepebaşı"],
     "Gaziantep": ["Araban", "İslahiye", "Karkamış", "Nizip", "Nurdağı", "Oğuzeli", "Şahinbey", "Şehitkamil", "Yavuzeli"],
-    "Giresun": ["Alucra", "Bulancak", "Çamoluk", "Çanakçı", "Dereli", "Doğankent", "Espiye", "Eynesil", "Görele", "Güce", "Keşap", "Merkez", "Piraziz", "Şebinkarahisar", "Tirebolu", "Yağlıdere"],
+    "Giresun": ["Alucra", "Bulancak", "Çamoluk", "Çanakçı", "Dereli", "Doğankent", "Espiye", "Eynesil", "Görele", "Güce", "Keşap", "Merkez", "Piraziz", "Şebinkarisar", "Tirebolu", "Yağlıdere"],
     "Gümüşhane": ["Kelkit", "Köse", "Kürtün", "Merkez", "Şiran", "Torul"],
     "Hakkari": ["Çukurca", "Derecik", "Merkez", "Şemdinli", "Yüksekova"],
     "Hatay": ["Altınözü", "Antakya", "Arsuz", "Belen", "Defne", "Dörtyol", "Erzin", "Hassa", "İskenderun", "Kırıkhan", "Kumlu", "Payas", "Reyhanlı", "Samandağ", "Yayladağı"],
@@ -95,12 +100,18 @@ const ilVerisi = {
     "Osmaniye": ["Bahçe", "Düziçi", "Hasanbeyli", "Kadirli", "Merkez", "Sumbas", "Toprakkale"],
     "Düzce": ["Akçakoca", "Cumayeri", "Çilimli", "Gölyaka", "Gümüşova", "Kaynaşlı", "Merkez", "Yığılca"]
 };
+
+// 3. Fonksiyonlar
 function illeriDoldur() {
     const sehirSelect = document.getElementById("sehir");
     if(!sehirSelect) return;
     sehirSelect.innerHTML = '<option value="">İl Seçiniz</option>';
-    Object.keys(ilVerisi).forEach(il => {
-        let opt = document.createElement("option"); opt.value = il; opt.textContent = il;
+    
+    // Alfabetik sıralayarak ekle
+    Object.keys(ilVerisi).sort((a, b) => a.localeCompare(b, 'tr')).forEach(il => {
+        let opt = document.createElement("option"); 
+        opt.value = il; 
+        opt.textContent = il;
         sehirSelect.appendChild(opt);
     });
 }
@@ -132,15 +143,19 @@ function okullariYukle() {
     });
 }
 
+// Oturum Takibi
 auth.onAuthStateChanged(user => {
-    if (user) { panelGuncelle(user.uid); } 
-    else { 
+    if (user) { 
+        panelGuncelle(user.uid); 
+    } else { 
         document.getElementById('auth-area').style.display = 'block'; 
         document.getElementById('user-panel').style.display = 'none';
-        illeriDoldur(); okullariYukle();
+        illeriDoldur(); 
+        okullariYukle();
     }
 });
 
+// Kayıt Fonksiyonu
 window.register = function() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -160,28 +175,45 @@ window.register = function() {
         .catch(e => alert(e.message));
 };
 
+// Giriş Fonksiyonu
 window.login = function() {
-    auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value)
-        .catch(e => alert(e.message));
+    const email = document.getElementById('loginEmail').value;
+    const pass = document.getElementById('loginPassword').value;
+    auth.signInWithEmailAndPassword(email, pass)
+        .catch(e => {
+            console.error("Giriş Hatası:", e.code);
+            alert("Giriş Hatası: " + e.message);
+        });
 };
 
+// Panel Güncelleme
 function panelGuncelle(uid) {
     db.collection("users").doc(uid).get().then(doc => {
+        if (!doc.exists) return;
         const data = doc.data();
         document.getElementById('auth-area').style.display = 'none';
         document.getElementById('user-panel').style.display = 'block';
         document.getElementById('welcome-msg').innerText = "Selam " + data.balonEtiketi;
         document.getElementById('display-height').innerText = data.balonYuksekligi;
 
+        // Admin Linki Göster/Gizle
         if(data.rol === 'admin') {
-            document.getElementById('admin-link-area').innerHTML = `<button onclick="window.location.href='admin.html'" style="background:black; color:white; margin-bottom:10px;">⚙️ Admin Paneli</button>`;
+            document.getElementById('admin-link-area').innerHTML = `
+                <button onclick="window.location.href='admin.html'" style="background:black; color:white; margin-bottom:10px;">
+                    ⚙️ Admin Paneli
+                </button>`;
         }
         siralamayiGetir(data.okulBilgisi.sinif, data.okulBilgisi.sube);
     });
 }
 
+// Sıralama Fonksiyonu
 function siralamayiGetir(sinif, sube) {
-    db.collection("users").where("okulBilgisi.sinif", "==", sinif).where("okulBilgisi.sube", "==", sube).get().then(qs => {
+    db.collection("users")
+      .where("okulBilgisi.sinif", "==", sinif)
+      .where("okulBilgisi.sube", "==", sube)
+      .get()
+      .then(qs => {
         const list = document.getElementById('leaderboard-list');
         list.innerHTML = "";
         qs.forEach(doc => {
@@ -191,6 +223,7 @@ function siralamayiGetir(sinif, sube) {
     });
 }
 
+// Puan Artırma
 window.yukseklikArtir = function() {
     const s = parseInt(document.getElementById('sayfaSayisi').value);
     if(!s) return;
@@ -199,4 +232,7 @@ window.yukseklikArtir = function() {
     }).then(() => location.reload());
 };
 
-window.logout = function() { auth.signOut().then(() => location.reload()); };
+// Çıkış Fonksiyonu
+window.logout = function() { 
+    auth.signOut().then(() => location.reload()); 
+};
