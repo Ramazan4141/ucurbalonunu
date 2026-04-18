@@ -144,11 +144,16 @@ auth.onAuthStateChanged(user => {
 // --- 6. PANELLER VE GİZLİLİK GÜNCELLEMELERİ ---
 
 window.panelGuncelle = function(uid) {
+    // 1. ÖNCE KENDİ VERİLERİMİZİ DİNLEYELİM (Hoş geldin mesajı ve kendi balonumuz için)
     db.collection("users").doc(uid).onSnapshot(doc => {
         if (!doc.exists) return;
         const d = doc.data();
-        document.getElementById('user-panel').style.display = 'block';
-        document.getElementById('auth-area').style.display = 'none';
+        
+        // Temel paneli aç
+        const up = document.getElementById('user-panel');
+        if(up) up.style.display = 'block';
+        const authArea = document.getElementById('auth-area');
+        if(authArea) authArea.style.display = 'none';
         
         document.getElementById('welcome-msg').innerText = "Selam " + (d.balonEtiketi);
         document.getElementById('display-height').innerText = d.balonYuksekligi;
@@ -160,16 +165,33 @@ window.panelGuncelle = function(uid) {
             document.getElementById('target-text').innerText = d.haftalikHedef;
         }
 
-        // KENDİ BALONUM (Takma Ad ile)
-        const bContainer = document.getElementById('balloon-container');
-        if(bContainer) {
-            bContainer.innerHTML = `<div class="balloon" style="bottom: ${Math.min(d.balonYuksekligi, 300)}px; background: #3498db; left: 50%; transform: translateX(-50%);">
-                <div class="balloon-label">${d.balonEtiketi}</div>
-            </div>`;
-        }
+        // 2. ŞİMDİ TÜM SINIF ARKADAŞLARINI DİNLEYELİM (Kendi balonumuz dahil)
+        db.collection("users")
+            .where("okulBilgisi.okul", "==", d.okulBilgisi.okul)
+            .where("okulBilgisi.sinif", "==", d.okulBilgisi.sinif)
+            .where("okulBilgisi.sube", "==", d.okulBilgisi.sube)
+            .where("rol", "==", "ogrenci")
+            .onSnapshot(qs => {
+                const bContainer = document.getElementById('balloon-container');
+                if(!bContainer) return;
+                
+                bContainer.innerHTML = ""; // Önce gökyüzünü temizle
+
+                qs.forEach(studentDoc => {
+                    const s = studentDoc.data();
+                    // Rastgele renk ve hafif sağ-sol kayması (Balonlar üst üste binmesin)
+                    const color = s.balonEtiketi === d.balonEtiketi ? "#3498db" : `hsl(${Math.random() * 360}, 60%, 70%)`;
+                    const leftPos = Math.random() * 80 + 10; // %10 ile %90 arası yatay yerleşim
+                    
+                    // Balonları çiz (Sadece Takma Adlar)
+                    bContainer.innerHTML += `
+                        <div class="balloon" style="bottom: ${Math.min(s.balonYuksekligi, 300)}px; background-color: ${color}; left: ${leftPos}%; transition: bottom 1s ease-in-out;">
+                            <div class="balloon-label">${s.balonEtiketi}</div>
+                        </div>`;
+                });
+            });
     });
 };
-
 window.adminSinifiniYukle = function() {
     const user = auth.currentUser;
     db.collection("users").doc(user.uid).get().then(tDoc => {
