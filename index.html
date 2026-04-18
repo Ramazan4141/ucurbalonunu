@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uçur Balonu</title>
+    <title>Uçur Balonu - Okuma Takibi</title>
     <link rel="stylesheet" href="style.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
@@ -16,39 +16,69 @@
     <div class="container">
         <div id="auth-area">
             <h1>🎈 Uçur Balonu</h1>
+            
             <div class="form-box" id="role-selection-area">
-                <p>Hesap türünü seçiniz:</p>
-                <button onclick="showRegisterForm('ogrenci')" style="background:#3498db;">Öğrenciyim</button>
-                <button onclick="showRegisterForm('admin')" style="background:#9b59b6;">Öğretmenim</button>
+                <p>Hoş geldin! Devam etmek için seç:</p>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="showRegisterForm('ogrenci')" style="background:#3498db; flex:1;">Öğrenciyim</button>
+                    <button onclick="showRegisterForm('admin')" style="background:#9b59b6; flex:1;">Öğretmenim</button>
+                </div>
+                <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #ccc;">
+                <button onclick="showLoginForm()" style="background:#34495e; width: 100%;">Zaten Hesabım Var (Giriş)</button>
             </div>
 
             <div id="dynamic-register-form" class="form-box" style="display: none;">
+                <h3 id="form-title">Kayıt Ol</h3>
                 <input type="hidden" id="rolSecimi">
-                <h3 id="form-title">Kayıt</h3>
-                <input type="text" id="ogrenciAdSoyad" placeholder="Ad Soyad">
-                <input type="text" id="takmaAd" placeholder="Görünür İsim">
                 
-                <select id="sehir" onchange="ilceleriYukle()">
+                <input type="text" id="ogrenciAdSoyad" placeholder="Ad Soyad">
+                <input type="text" id="takmaAd" placeholder="Görünür İsim (Balon Etiketi)">
+                
+                <select id="sehir" onchange="window.ilceleriYukle()">
                     <option value="">İl Seçiniz</option>
                 </select>
                 <select id="ilce" disabled>
                     <option value="">İlçe Seçiniz</option>
                 </select>
-                <select id="okul"></select>
+                <select id="okul">
+                    <option value="">Okul Seçiniz</option>
+                </select>
 
                 <div style="display: flex; gap: 5px;">
                     <input type="number" id="sinif" placeholder="Sınıf">
                     <input type="text" id="sube" placeholder="Şube">
                 </div>
                 
-                <input type="email" id="email" placeholder="E-posta">
-                <input type="password" id="password" placeholder="Şifre">
-                <button onclick="register()" style="background:#27ae60;">Kaydı Tamamla</button>
-                <button onclick="resetRoleSelection()">Geri</button>
+                <input type="email" id="email" placeholder="E-posta Adresi">
+                <input type="password" id="password" placeholder="Şifre (Min. 6 Karakter)">
+                
+                <button onclick="register()" style="background:#27ae60; margin-top: 10px;">Kaydı Tamamla</button>
+                <button onclick="resetRoleSelection()" style="background:#bdc3c7; color: black; margin-top: 5px;">Geri Dön</button>
+            </div>
+
+            <div id="login-form-area" class="form-box" style="display: none;">
+                <h3>Giriş Yap</h3>
+                <input type="email" id="loginEmail" placeholder="E-posta">
+                <input type="password" id="loginPassword" placeholder="Şifre">
+                <button onclick="login()" style="background:#2980b9;">Giriş Yap</button>
+                <button onclick="resetRoleSelection()" style="background:#bdc3c7; color: black; margin-top: 5px;">Geri Dön</button>
             </div>
         </div>
+
+        <div id="user-panel" style="display: none;">
+            <header>
+                <h1 id="welcome-msg">Selam!</h1>
+                <button onclick="logout()" style="background:#e74c3c;">Çıkış</button>
+            </header>
+            <div class="sky"><div id="balloon-container"></div></div>
+            <div class="stats">Balonun: <span id="display-height">0</span> m</div>
+            <div class="form-box">
+                <input type="number" id="sayfaSayisi" placeholder="Kaç sayfa okudun?">
+                <button onclick="yukseklikArtir()">Uçur! 🚀</button>
+            </div>
+            <div class="leaderboard"><h3>Sınıf Sıralaması 🏆</h3><div id="leaderboard-list"></div></div>
+        </div>
     </div>
-    
     <script src="app.js"></script>
 </body>
 </html>
