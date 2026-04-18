@@ -211,3 +211,44 @@ window.okulEkle = function() {
 window.logout = function() { 
     auth.signOut().then(() => window.location.href = 'index.html'); 
 };
+window.duyuruYayinla = function() {
+    const hedefText = document.getElementById('haftalikHedef')?.value;
+    if (!hedefText) {
+        alert("Lütfen bir hedef veya duyuru yazın!");
+        return;
+    }
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    // 1. Önce öğretmenin hangi sınıfa duyuru yapacağını buluyoruz
+    db.collection("users").doc(user.uid).get().then(tDoc => {
+        const t = tDoc.data();
+        
+        // 2. O sınıftaki TÜM öğrencileri buluyoruz
+        db.collection("users")
+            .where("okulBilgisi.okul", "==", t.okulBilgisi.okul)
+            .where("okulBilgisi.sinif", "==", t.okulBilgisi.sinif)
+            .where("okulBilgisi.sube", "==", t.okulBilgisi.sube)
+            .where("rol", "==", "ogrenci")
+            .get().then(qs => {
+                
+                if (qs.empty) {
+                    alert("Bu sınıfta henüz kayıtlı öğrenci yok. Duyuru yapılacak kimse bulunamadı!");
+                    return;
+                }
+
+                // 3. Her öğrencinin dökümanına duyuruyu yazıyoruz
+                let batch = db.batch(); // Toplu işlem (Hızlı olması için)
+                qs.forEach(doc => {
+                    const studentRef = db.collection("users").doc(doc.id);
+                    batch.update(studentRef, { haftalikHedef: hedefText });
+                });
+
+                batch.commit().then(() => {
+                    alert("Duyuru tüm öğrencilere başarıyla iletildi! 🎈");
+                    document.getElementById('haftalikHedef').value = ""; // Kutuyu temizle
+                });
+            });
+    }).catch(e => alert("Duyuru hatası: " + e.message));
+};
