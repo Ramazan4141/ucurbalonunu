@@ -1,24 +1,20 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Yönetim Paneli - Uçur Balonu</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
-</head>
-<body>
-    <div class="container">
-        <h1>⚙️ Yönetim Paneli</h1>
-        <div class="form-box">
-            <h3>Okul Yönetimi</h3>
-            <input type="text" id="yeniOkulInput" placeholder="Yeni Okul Adı">
-            <button onclick="okulEkle()">Ekle</button>
-            <ul id="mevcutOkullar" style="margin-top:20px; list-style:none; padding:0;"></ul>
-        </div>
-        <button onclick="window.location.href='index.html'" style="background:#2f3542;">Ana Sayfaya Dön</button>
+<div class="container">
+    <h1>⚙️ Öğretmen Yönetim Paneli</h1>
+    
+    <div class="form-box">
+        <h3>🎯 Yeni Hedef Tanımla</h3>
+        <input type="text" id="hedefAd" placeholder="Hedef Adı (Örn: Haftanın Kitap Kurdu)">
+        <input type="number" id="hedefSayfa" placeholder="Hedef Sayfa Sayısı">
+        <select id="hedefSinif">
+            <option value="2">2. Sınıf</option>
+            <option value="3">3. Sınıf</option>
+        </select>
+        <button onclick="hedefKaydet()" style="background:#2980b9;">Hedefi Yayınla</button>
     </div>
-    <script src="admin.js"></script>
-</body>
-</html>
+
+    <div class="leaderboard">
+        <h3>👥 Öğrenci Listesi ve Ödül Ver</h3>
+        <div id="admin-ogrenci-listesi">
+            </div>
+    </div>
+</div>
