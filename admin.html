@@ -2,8 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yönetim Paneli - Uçur Balonu</title>
+    <title>Öğretmen Paneli</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
@@ -11,27 +10,30 @@
 </head>
 <body>
     <div class="container">
-        <h1>👨‍🏫 Sınıf Yönetimi</h1>
-        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <button onclick="window.location.href='index.html'" style="background:#34495e; flex: 1;">🏠 Ana Sayfa</button>
-            <button onclick="logout()" style="background:#e74c3c; flex: 1;">🔒 Güvenli Çıkış</button>
+        <h2>👨‍🏫 Sınıf Yönetimi</h2>
+        
+        <div class="sky" style="height: 400px; background: skyblue; position: relative; border-radius: 15px; overflow: hidden; margin-bottom: 20px;">
+            <div id="admin-balloon-container"></div>
         </div>
-        <div class="sky"><div id="admin-balloon-container"></div></div>
+
         <div class="form-box">
-            <h3>🎯 Haftalık Hedef Tanımla</h3>
-            <input type="text" id="hedefAd" placeholder="Hedef Başlığı">
-            <input type="number" id="hedefSayfa" placeholder="Hedef Sayfa">
-            <button onclick="hedefKaydet()" style="background:#2ecc71;">Duyur</button>
+            <h3>📢 Haftalık Hedef / Duyuru</h3>
+            <input type="text" id="haftalikHedef" placeholder="Bu haftaki hedef nedir?">
+            <button onclick="duyuruYayinla()">Tüm Sınıfa Duyur</button>
         </div>
+
         <div class="leaderboard">
-            <h3>📋 Öğrenci Listesi</h3>
+            <h3>👥 Öğrenci Listesi</h3>
             <div id="admin-student-list"></div>
         </div>
-        <div id="okul-ekleme-alani" class="form-box" style="display: none; border-top: 2px dashed #f39c12; margin-top: 30px; padding-top: 20px;">
-            <h3>🏫 Sistem Yönetimi</h3>
-            <input type="text" id="yeniOkulAd" placeholder="Yeni Okul Adı">
-            <button onclick="okulEkle()" style="background:#f39c12;">Okul Ekle</button>
+
+        <div id="okul-ekleme-alani" style="display:none; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
+            <h3>🏫 Okul Ekle (Süper Admin)</h3>
+            <input type="text" id="yeniOkulAd">
+            <button onclick="okulEkle()">Ekle</button>
         </div>
+
+        <button onclick="logout()" style="background:red; margin-top:20px;">Çıkış Yap</button>
     </div>
     <script src="app.js"></script>
 </body>
