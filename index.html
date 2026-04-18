@@ -3,41 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uçur Balonu - Okuma Takibi</title>
+    <title>Uçur Balonu - Giriş</title>
     <link rel="stylesheet" href="style.css">
-    
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-
     <div class="container">
-        <div id="auth-area" style="display: block;">
+        <div id="auth-area">
             <h1>🎈 Uçur Balonu</h1>
             
             <div class="form-box">
                 <h2>Kayıt Ol</h2>
-                <input type="text" id="ogrenciAdSoyad" placeholder="Öğrenci Ad Soyad">
-                <input type="text" id="takmaAd" placeholder="Balonuna Bir İsim Ver">
+                <select id="rolSecimi" style="margin-bottom: 10px; background: #fffbe6;">
+                    <option value="ogrenci">Ben bir Öğrenciyim</option>
+                    <option value="admin">Ben bir Öğretmenim</option>
+                </select>
+                <input type="text" id="ogrenciAdSoyad" placeholder="Ad Soyad">
+                <input type="text" id="takmaAd" placeholder="Balon/Sınıf Takma Adı">
                 <input type="number" id="sinif" placeholder="Sınıf (Örn: 2)">
                 <input type="text" id="sube" placeholder="Şube (Örn: A)">
                 
-                <select id="sehir" onchange="ilceleriYukle()">
-                    <option value="">İl Seçiniz</option>
-                </select>
-                
-                <select id="ilce" disabled>
-                    <option value="">İlçe Seçiniz</option>
-                </select>
+                <select id="sehir" onchange="ilceleriYukle()"><option value="">İl Seçiniz</option></select>
+                <select id="ilce" disabled><option value="">İlçe Seçiniz</option></select>
+                <select id="okul"><option value="">Okul Seçiniz</option></select>
 
-                <select id="okul">
-                    <option value="">Okul Seçiniz</option>
-                </select>
-
-                <input type="email" id="email" placeholder="Veli E-posta">
-                <input type="password" id="password" placeholder="Şifre Oluştur">
-                <button onclick="register()">Kayıt Ol ve Başla</button>
+                <input type="email" id="email" placeholder="E-posta">
+                <input type="password" id="password" placeholder="Şifre">
+                <button onclick="register()">Kayıt Ol</button>
             </div>
 
             <div class="form-box">
@@ -49,34 +43,24 @@
         </div>
 
         <div id="user-panel" style="display: none;">
-            <div id="admin-link-area"></div> 
-            
+            <div id="admin-link-area"></div>
             <header>
                 <h1 id="welcome-msg">Selam!</h1>
-                <button onclick="logout()" style="background:#e74c3c; margin-bottom: 10px;">Çıkış Yap</button>
+                <button onclick="logout()" style="background:#e74c3c;">Çıkış</button>
             </header>
-
-            <div class="sky">
-                <div id="balloon-container"></div>
-            </div>
-
-            <div class="stats">Balonun Şuan: <span id="display-height">0</span> metrede!</div>
-            
+            <div class="sky"><div id="balloon-container"></div></div>
+            <div class="stats">Balonun: <span id="display-height">0</span>m</div>
             <div class="form-box">
-                <p>Bugün kaç sayfa kitap okudun?</p>
-                <input type="number" id="sayfaSayisi" placeholder="Sayfa sayısı girin">
-                <button onclick="yukseklikArtir()">Balonumu Uçur! 🚀</button>
+                <input type="number" id="sayfaSayisi" placeholder="Kaç sayfa okudun?">
+                <button onclick="yukseklikArtir()">Uçur! 🚀</button>
             </div>
-
             <div class="leaderboard">
                 <h3>Sınıf Sıralaması 🏆</h3>
                 <div id="leaderboard-list"></div>
             </div>
         </div>
     </div>
-
- <script src="data.js" defer></script>
-<script src="app.js" defer></script>
-
+    <script src="data.js" defer></script>
+    <script src="app.js" defer></script>
 </body>
 </html>
