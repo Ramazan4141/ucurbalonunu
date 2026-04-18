@@ -16,7 +16,21 @@ window.showRegisterForm = function(role) {
     document.getElementById('role-selection-area').style.display = 'none';
     document.getElementById('dynamic-register-form').style.display = 'block';
     document.getElementById('rolSecimi').value = role;
-    illeriDoldur(); okullariYukle();
+    
+    // BAŞLIĞI GÜNCELLE
+    if(role === 'admin') {
+        document.getElementById('form-title').innerText = "👨‍🏫 Öğretmen Kaydı";
+    } else {
+        document.getElementById('form-title').innerText = "🎈 Öğrenci Kaydı";
+    }
+
+    // KRİTİK NOKTA: Verileri burada tekrar tetikliyoruz
+    if (typeof illeriDoldur === 'function') {
+        illeriDoldur(); 
+    }
+    if (typeof okullariYukle === 'function') {
+        okullariYukle();
+    }
 };
 
 window.login = function() {
