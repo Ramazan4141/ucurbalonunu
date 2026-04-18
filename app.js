@@ -171,16 +171,31 @@ auth.onAuthStateChanged(user => {
 
 window.panelGuncelle = function(uid) {
     db.collection("users").doc(uid).onSnapshot(doc => {
+        if (!doc.exists) return;
         const d = doc.data();
         const up = document.getElementById('user-panel');
         if(!up) return;
+        
         up.style.display = 'block';
         const authArea = document.getElementById('auth-area');
         if(authArea) authArea.style.display = 'none';
         
+        // Verileri ekrana bas
         document.getElementById('welcome-msg').innerText = "Selam " + (d.balonEtiketi || "Öğrenci");
         document.getElementById('display-height').innerText = d.balonYuksekligi;
         
+        // --- HEDEF GÖRÜNÜRLÜĞÜ (YENİ KISIM) ---
+        const targetArea = document.getElementById('target-area');
+        const targetText = document.getElementById('target-text');
+        
+        if (d.haftalikHedef) {
+            targetArea.style.display = 'block';
+            targetText.innerText = d.haftalikHedef;
+        } else {
+            targetArea.style.display = 'none';
+        }
+        // --------------------------------------
+
         const bContainer = document.getElementById('balloon-container');
         if(bContainer) {
             bContainer.innerHTML = `<div class="balloon" style="bottom: ${Math.min(d.balonYuksekligi, 300)}px; background: #3498db; left: 50%; transform: translateX(-50%);">
