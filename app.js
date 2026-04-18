@@ -147,5 +147,35 @@ function siralamayiGetir(sinif, sube) {
         });
     });
 }
+// ÖĞRENCİYE ROZET VERME
+window.rozetVer = function(studentUid, rozetAdi) {
+    db.collection("users").doc(studentUid).update({
+        rozetler: firebase.firestore.FieldValue.arrayUnion({
+            ad: rozetAdi,
+            tarih: new Date().toLocaleDateString('tr-TR')
+        })
+    }).then(() => {
+        alert("Rozet başarıyla verildi! 🏅");
+        adminOgrenciListele(); // Listeyi güncelle
+    });
+};
 
+// ÖĞRENCİLERİ LİSTELEME (SADECE ADMİNLER İÇİN)
+window.adminOgrenciListele = function() {
+    const listeDiv = document.getElementById('admin-ogrenci-listesi');
+    // Burada tüm öğrencileri çekip yanlarına bir select box ve "Rozet Gönder" butonu koyacağız
+    db.collection("users").where("rol", "==", "ogrenci").get().then(qs => {
+        listeDiv.innerHTML = "";
+        qs.forEach(doc => {
+            const d = doc.data();
+            listeDiv.innerHTML += `
+                <div class="student-card">
+                    <span>${d.ogrenciAdSoyad} (${d.balonYuksekligi}m)</span>
+                    <button onclick="rozetVer('${doc.id}', 'Kitap Kurdu 📚')">Kurdu Rozeti Ver</button>
+                    <button onclick="rozetVer('${doc.id}', 'Zirve Avcısı 🏔️')" style="background:#f1c40f;">Zirve Rozeti Ver</button>
+                </div>
+            `;
+        });
+    });
+};
 window.logout = function() { auth.signOut().then(() => location.reload()); };
