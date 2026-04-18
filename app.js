@@ -278,13 +278,39 @@ window.okulEkle = function() {
 };
 
 window.yukseklikArtir = function() {
-    const sayfa = parseInt(document.getElementById('sayfaSayisi').value);
-    if(isNaN(sayfa) || sayfa <= 0) return alert("Geçerli bir sayfa sayısı gir!");
+    const sayfaInput = document.getElementById('sayfaSayisi');
+    const sayfa = parseInt(sayfaInput.value);
+    
+    if(isNaN(sayfa) || sayfa <= 0) {
+        alert("Lütfen geçerli bir sayfa sayısı gir kanka! 😊");
+        return;
+    }
+
     const user = auth.currentUser;
     const userRef = db.collection("users").doc(user.uid);
-    userRef.update({
-        balonYuksekligi: firebase.firestore.FieldValue.increment(sayfa)
-    }).then(() => {
-        document.getElementById('sayfaSayisi').value = "";
+
+    // BUGÜNÜN TARİHİNİ AL (Örn: "2026-04-19")
+    const bugun = new Date().toISOString().split('T')[0];
+
+    // ÖNCE KONTROL ET: Bugün kayıt yapılmış mı?
+    userRef.get().then(doc => {
+        const data = doc.data();
+        
+        if (data.sonKayitTarihi === bugun) {
+            alert("Bugünlük balonunu zaten uçurdun! 🎈 Yarın okuduğun sayfalarla daha da yükseğe çıkabilirsin. ✨");
+            sayfaInput.value = "";
+            return;
+        }
+
+        // EĞER BUGÜN KAYIT YAPILMAMIŞSA İŞLEMİ YAP
+        userRef.update({
+            balonYuksekligi: firebase.firestore.FieldValue.increment(sayfa),
+            sonKayitTarihi: bugun // Tarihi damgala
+        }).then(() => {
+            alert(`Harika! ${sayfa} sayfa okudun ve balonun havalandı! 🚀`);
+            sayfaInput.value = "";
+        }).catch(e => {
+            alert("Bir hata oluştu: " + e.message);
+        });
     });
 };
