@@ -1,23 +1,157 @@
-.student-admin-card {
-    background: white;
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 8px;
+/* Genel Ayarlar */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    min-height: 100vh;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 500px; /* Sayfanın çok yayılmasını engeller */
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+h2 {
+    color: #34495e;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Form Elemanları */
+.form-box {
+    margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.3s;
+}
+
+input:focus, select:focus {
+    border-color: #3498db;
+}
+
+button {
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.3s;
+}
+
+button:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+/* Gökyüzü ve Balonlar */
+.sky {
+    height: 250px;
+    background: linear-gradient(#87CEEB, #E0F7FA);
+    position: relative;
+    border-radius: 15px;
+    border: 3px solid #fff;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.remote-balloon {
+    position: absolute;
+    width: 40px;
+    transition: bottom 1s ease-in-out;
+    text-align: center;
+}
+
+.remote-balloon img {
+    width: 100%;
+}
+
+.balloon-label {
+    font-size: 10px;
+    background: rgba(255,255,255,0.8);
+    padding: 2px 5px;
+    border-radius: 5px;
+    display: block;
+    margin-bottom: 2px;
+}
+
+/* Sıralama ve Kartlar */
+.leaderboard {
+    margin-top: 20px;
+}
+
+.student-admin-card {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-left: 5px solid #3498db;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 5px;
 }
 
 .admin-actions button {
-    padding: 5px 10px;
-    font-size: 12px;
-    margin-left: 5px;
-    cursor: pointer;
+    flex: 1;
+    font-size: 11px;
+    padding: 8px;
 }
 
-#admin-balloon-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
+/* İstatistik Alanı */
+.stats {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #e67e22;
+    margin-bottom: 15px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Mobil için */
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+    }
 }
