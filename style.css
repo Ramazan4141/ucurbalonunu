@@ -1,63 +1,23 @@
-/* style.css - BU KODLARI MEVCUT CSS'İN ÜZERİNE YAPIŞTIR */
-
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #f0f4f8;
-    display: flex; justify-content: center; align-items: center;
-    min-height: 100vh; margin: 0; padding: 20px;
+.student-admin-card {
+    background: white;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.container {
-    background: white; padding: 30px; border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center;
+.admin-actions button {
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-left: 5px;
+    cursor: pointer;
 }
 
-.sky {
-    position: relative; 
-    height: 300px; /* Gökyüzü yüksekliği */
-    background: linear-gradient(to bottom, #81ecec, #74b9ff);
-    border-radius: 15px; 
-    margin: 20px 0; 
-    overflow: hidden; /* Balonlar dışarı taşmasın */
-    border: 3px solid #dfe6e9;
-}
-
-/* Balonların Uçuş Alanı */
-#balloon-container {
-    position: relative;
+#admin-balloon-container {
     width: 100%;
     height: 100%;
+    position: relative;
 }
-
-/* Her bir görsel balonun yapısı */
-.remote-balloon {
-    position: absolute; 
-    width: 40px; /* Balonu küçülttük ki sığsınlar */
-    text-align: center;
-    transition: bottom 2s ease-out, left 1s ease-in-out;
-    z-index: 10;
-}
-
-.remote-balloon img {
-    width: 100%; /* Balon resmi div'in genişliği kadar olur */
-    height: auto;
-}
-
-/* Balonun üzerindeki isim etiketi */
-.balloon-label {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 1px 4px;
-    border-radius: 4px;
-    font-size: 9px; /* İsmi de küçülttük */
-    font-weight: bold;
-    display: block;
-    white-space: nowrap;
-    margin-bottom: 2px;
-    color: #333;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.form-box { background: #f9f9f9; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #eee; }
-input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-button { width: 100%; padding: 12px; background-color: #0984e3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-.leaderboard p { background: #fff; padding: 10px; border-radius: 8px; margin: 5px 0; border-left: 5px solid #0984e3; font-size: 14px; text-align: left; }
