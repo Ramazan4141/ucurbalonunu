@@ -97,17 +97,20 @@ window.register = function() {
     const finalRole = (roleInput === 'admin') ? 'ogretmen' : 'ogrenci';
 
     const userObj = {
-        ogrenciAdSoyad: document.getElementById('ogrenciAdSoyad').value,
-        balonEtiketi: document.getElementById('takmaAd').value || "Gizli Balon",
-        okulBilgisi: { 
-            okul: document.getElementById('okul').value, 
-            sinif: document.getElementById('sinif').value, 
-            sube: document.getElementById('sube').value 
-        },
-        balonYuksekligi: 0,
-        rol: finalRole,
-        sonKayitTarihi: ""
-    };
+    ogrenciAdSoyad: document.getElementById('ogrenciAdSoyad').value,
+    balonEtiketi: document.getElementById('takmaAd').value || "Gizli Balon",
+    okulBilgisi: { 
+        okul: document.getElementById('okul').value, 
+        sinif: document.getElementById('sinif').value, 
+        sube: document.getElementById('sube').value 
+    },
+    balonYuksekligi: 0,
+    toplamOkunanSayfa: 0, // <-- YENİ: İstatistik için
+    gunlukSeri: 0,        // <-- YENİ: Seri takibi için
+    madalyalar: [],       // <-- YENİ: Madalya rafı boş başlar
+    rol: finalRole,
+    sonKayitTarihi: ""
+};
 
     auth.createUserWithEmailAndPassword(email, pass)
         .then(res => db.collection("users").doc(res.user.uid).set(userObj))
