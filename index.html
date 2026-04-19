@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="container">
         <div id="auth-area">
             <div id="role-selection-area">
@@ -20,7 +19,6 @@
 
             <div id="dynamic-register-form" style="display:none;">
                 <h2 id="form-title">Kayıt Ol</h2>
-                
                 <input type="hidden" id="rolSecimi">
                 <input type="text" id="ogrenciAdSoyad" placeholder="Adınız Soyadınız">
                 <input type="text" id="takmaAd" placeholder="Balon Etiketi (Rumuz)">
@@ -41,10 +39,8 @@
                     <input type="number" id="sinif" placeholder="Sınıf (Örn: 4)">
                     <input type="text" id="sube" placeholder="Şube (Örn: A)">
                 </div>
-
                 <input type="email" id="email" placeholder="E-posta">
                 <input type="password" id="password" placeholder="Şifre">
-                
                 <button onclick="register()">Kayıt Ol ve Başla</button>
                 <button onclick="resetRoleSelection()" style="background:#95a5a6;">Geri</button>
             </div>
@@ -63,9 +59,7 @@
                 <h2 id="welcome-msg">Selam!</h2>
                 <button onclick="logout()" style="background:#e74c3c; padding: 5px 10px; font-size: 12px;">Çıkış Yap</button>
             </div>
-
             <div class="sky" id="balloon-container"></div>
-
             <div id="action-area">
                 <p>Balonun şu an <strong><span id="display-height">0</span> metre</strong> yüksekte!</p>
                 <div class="input-group">
@@ -79,9 +73,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="app.js"></script>    
-<script src="data.js"></script>
-
-
+    
+    <script src="data.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
