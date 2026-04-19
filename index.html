@@ -3,99 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uçur Balonu - Okuma Takibi</title>
+    <title>Uçur Balonunu | Kitap Okuma Takibi</title>
     <link rel="stylesheet" href="style.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
-
-    <script src="data.js"></script>
 </head>
 <body>
+
     <div class="container">
-        
         <div id="auth-area">
-            <h1>🎈 Uçur Balonu</h1>
-            
-            <div class="form-box" id="role-selection-area">
-                <p style="text-align: center; margin-bottom: 10px; color: #666;">Hoş geldin! Devam etmek için bir seçenek seç:</p>
-                <div style="display: flex; gap: 10px;">
-                    <button onclick="window.showRegisterForm('ogrenci')" style="background:#3498db; flex:1;">Öğrenciyim</button>
-                    <button onclick="window.showRegisterForm('admin')" style="background:#9b59b6; flex:1;">Öğretmenim</button>
-                </div>
-                <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #ccc;">
-                <button onclick="window.showLoginForm()" style="background:#34495e; width: 100%;">Zaten Hesabım Var (Giriş)</button>
+            <div id="role-selection-area">
+                <h1>🎈 Uçur Balonunu</h1>
+                <p>Kitap okudukça balonunu gökyüzüne gönder!</p>
+                <button onclick="showRegisterForm('user')">Öğrenci Kaydı</button>
+                <button onclick="showRegisterForm('admin')">Öğretmen Kaydı</button>
+                <p>Zaten hesabın var mı? <a href="#" onclick="showLoginForm()">Giriş Yap</a></p>
             </div>
 
-            <div id="dynamic-register-form" class="form-box" style="display: none;">
-                <h3 id="form-title" style="text-align: center;">Kayıt Ol</h3>
+            <div id="dynamic-register-form" style="display:none;">
+                <h2 id="form-title">Kayıt Ol</h2>
+                
                 <input type="hidden" id="rolSecimi">
+                <input type="text" id="ogrenciAdSoyad" placeholder="Adınız Soyadınız">
+                <input type="text" id="takmaAd" placeholder="Balon Etiketi (Rumuz)">
                 
-                <input type="text" id="ogrenciAdSoyad" placeholder="Ad Soyad">
-                <input type="text" id="takmaAd" placeholder="Balon Etiketi (Görünür İsim)">
-                
-                <select id="sehir" onchange="window.ilceleriYukle()">
+                <select id="sehir" onchange="ilceleriYukle()">
                     <option value="">İl Seçiniz</option>
                 </select>
-                <select id="ilce" disabled>
+
+                <select id="ilce" onchange="okullariYukle()">
                     <option value="">İlçe Seçiniz</option>
                 </select>
+
                 <select id="okul">
                     <option value="">Okul Seçiniz</option>
                 </select>
 
-                <div style="display: flex; gap: 10px;">
-                    <input type="number" id="sinif" placeholder="Sınıf (Örn: 3)">
+                <div style="display: flex; gap: 5px;">
+                    <input type="number" id="sinif" placeholder="Sınıf (Örn: 4)">
                     <input type="text" id="sube" placeholder="Şube (Örn: A)">
                 </div>
+
+                <input type="email" id="email" placeholder="E-posta">
+                <input type="password" id="password" placeholder="Şifre">
                 
-                <input type="email" id="email" placeholder="E-posta Adresi">
-                <input type="password" id="password" placeholder="Şifre (En az 6 karakter)">
-                
-                <button onclick="window.register()" style="background:#27ae60; margin-top: 10px;">Kaydı Tamamla</button>
-                <button onclick="window.resetRoleSelection()" style="background:#bdc3c7; color: black; margin-top: 5px;">Geri Dön</button>
+                <button onclick="register()">Kayıt Ol ve Başla</button>
+                <button onclick="resetRoleSelection()" style="background:#95a5a6;">Geri</button>
             </div>
 
-            <div id="login-form-area" class="form-box" style="display: none;">
-                <h3 style="text-align: center;">Tekrar Hoş Geldin!</h3>
-                <input type="email" id="loginEmail" placeholder="E-posta Adresi">
+            <div id="login-form-area" style="display:none;">
+                <h2>Giriş Yap</h2>
+                <input type="email" id="loginEmail" placeholder="E-posta">
                 <input type="password" id="loginPassword" placeholder="Şifre">
-                <button onclick="window.login()" style="background:#2980b9;">Giriş Yap</button>
-                <button onclick="window.resetRoleSelection()" style="background:#bdc3c7; color: black; margin-top: 5px;">Geri Dön</button>
+                <button onclick="login()">Giriş Yap</button>
+                <button onclick="resetRoleSelection()" style="background:#95a5a6;">Geri</button>
             </div>
         </div>
 
-        <div id="user-panel" style="display: none;">
-            <header>
+        <div id="user-panel" style="display:none;">
+            <div id="panel-header">
                 <h2 id="welcome-msg">Selam!</h2>
-                <div id="target-area" style="background: #fff3cd; padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ffeeba; display: none;">
-    <strong>🎯 Haftalık Hedef:</strong> <span id="target-text">Henüz bir hedef belirlenmedi.</span>
-</div>
-                <button onclick="window.logout()" style="background:#e74c3c; padding: 5px 15px; font-size: 12px;">Çıkış</button>
-            </header>
-
-            <div class="stats">Mevcut Yükseklik: <span id="display-height">0</span> m</div>
-
-            <div class="sky">
-                <div id="balloon-container"></div>
+                <button onclick="logout()" style="background:#e74c3c; padding: 5px 10px; font-size: 12px;">Çıkış Yap</button>
             </div>
 
-            <div class="form-box">
-                <p style="font-size: 13px; color: #666; text-align: center;">Yeni okuduğun sayfaları ekle:</p>
-                <input type="number" id="sayfaSayisi" placeholder="Kaç sayfa okudun?">
-                <button onclick="window.yukseklikArtir()">Balonu Uçur! 🚀</button>
-            </div>
+            <div class="sky" id="balloon-container">
+                </div>
 
-            <div class="leaderboard">
-                <h3>🏆 Sınıf Sıralaması</h3>
-                <div id="leaderboard-list">
-                    </div>
+            <div id="action-area">
+                <p>Balonun şu an <strong><span id="display-height">0</span> metre</strong> yüksekte!</p>
+                <div class="input-group">
+                    <input type="number" id="sayfaSayisi" placeholder="Kaç sayfa okudun?">
+                    <button onclick="yukseklikArtir()">Uçur! 🚀</button>
+                </div>
             </div>
         </div>
-
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <script src="data.js"></script>
     <script src="app.js"></script>
+
 </body>
 </html>
