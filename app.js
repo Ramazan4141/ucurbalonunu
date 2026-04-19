@@ -141,12 +141,21 @@ auth.onAuthStateChanged(user => {
 
 // --- 6. OKUL EKLEME (SUPERADMIN) ---
 window.okulEkle = function() {
+    const ilceSelect = document.getElementById('yeniOkulIlce');
     const okulInput = document.getElementById('yeniOkulAd');
+    
+    const secilenIlce = ilceSelect.value;
     const okulAd = okulInput.value.trim();
-    if(!okulAd) return alert("Okul adı gir!");
-    db.collection("sistem").doc("okulListesi").update({
-        liste: firebase.firestore.FieldValue.arrayUnion(okulAd)
-    }).then(() => { alert("Okul Eklendi! 🏫"); okulInput.value = ""; });
+
+    if(!secilenIlce || !okulAd) return alert("Lütfen önce ilçe seçin ve okul adını yazın!");
+
+    // Firestore'da 'okullar' dökümanı içinde, ilçe ismine göre bir array güncelliyoruz
+    db.collection("sistem").doc("okulListesi").set({
+        [secilenIlce]: firebase.firestore.FieldValue.arrayUnion(okulAd)
+    }, { merge: true }).then(() => {
+        alert(`${secilenIlce} ilçesine ${okulAd} başarıyla eklendi! 🏫`);
+        okulInput.value = "";
+    }).catch(e => alert("Hata: " + e.message));
 };
 
 // --- 7. PANEL VE BALONLAR (MADALYA GÖRÜNÜMÜ EKLENDİ) ---
