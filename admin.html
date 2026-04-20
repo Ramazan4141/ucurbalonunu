@@ -2,16 +2,14 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Öğretmen Paneli</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Öğretmen Paneli | Uçur Balonunu</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
     <div class="container">
         <h2>👨‍🏫 Sınıf Yönetimi</h2>
-        
+
         <div class="sky" style="height: 400px; background: skyblue; position: relative; border-radius: 15px; overflow: hidden; margin-bottom: 20px;">
             <div id="admin-balloon-container"></div>
         </div>
@@ -24,24 +22,43 @@
 
         <div class="leaderboard">
             <h3>👥 Öğrenci Listesi</h3>
-            <div id="admin-student-list"></div>
+            <div id="admin-student-list">
+                <p style="color:#999">Yükleniyor...</p>
+            </div>
         </div>
 
         <div id="okul-ekleme-alani" style="margin-top: 20px; border-top: 2px solid #eee; padding-top: 15px; background: #f9f9f9; border-radius: 10px; padding: 15px;">
-            <h3 style="color: #2c3e50;">🏫 Yeni Okul Tanımla (Yönetici)</h3>
-            <select id="yeniOkulIl" onchange="yeniOkulIlceleriYukle()" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+            <h3 style="color: #2c3e50;">🏫 Yeni Okul Tanımla</h3>
+
+            <label style="font-size:13px; color:#666; display:block; margin-bottom:4px;">İl</label>
+            <select id="yeniOkulIl" onchange="yeniOkulIlceleriYukle()" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius:8px; border:2px solid #ddd;">
                 <option value="">İl Seçiniz</option>
             </select>
-            <select id="yeniOkulIlce" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-                <option value="">İlçe Seçiniz</option>
+
+            <label style="font-size:13px; color:#666; display:block; margin-bottom:4px;">İlçe</label>
+            <select id="yeniOkulIlce" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius:8px; border:2px solid #ddd;">
+                <option value="">Önce il seçiniz</option>
             </select>
-            <input type="text" id="yeniOkulAd" placeholder="Okul Adı (Örn: Simya Koleji)" style="width: 95%; margin-bottom: 10px;">
-            <button onclick="okulEkle()" style="width: 100%; background: #27ae60; color: white;">Sisteme Kaydet</button>
+
+            <label style="font-size:13px; color:#666; display:block; margin-bottom:4px;">Okul Adı</label>
+            <input type="text" id="yeniOkulAd" placeholder="Örn: Atatürk İlkokulu" style="width: 95%; margin-bottom: 10px;">
+
+            <button onclick="okulEkle()" style="width: 100%; background: #27ae60; color: white;">
+                ✅ Sisteme Kaydet
+            </button>
         </div>
 
-        <button onclick="logout()" style="background:red; margin-top:20px; width: 100%;">Çıkış Yap</button>
+        <button onclick="logout()" style="background:red; margin-top:20px; width: 100%;">
+            🚪 Çıkış Yap
+        </button>
     </div>
 
+    <!-- Firebase SDK (body sonunda — en kritik düzeltme) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- Önce data, sonra app (admin.js artık ayrı değil) -->
     <script src="data.js"></script>
     <script src="app.js"></script>
 </body>
