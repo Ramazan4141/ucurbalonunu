@@ -321,34 +321,40 @@ function setValue(id, val) {
     if (el) el.value = val;
 }
 window.kullaniciyiGoster = function(uid) {
-    db.collection('users').doc(uid).get().then(doc => {
-        if (doc.exists) {
-            const data = doc.data();
-            const container = document.getElementById('balloon-container');
-            if (!container) return;
+    db.collection('users').doc(uid).get().then(userDoc => {
+        if (!userDoc.exists) return;
+        const currentUser = userDoc.data();
+        const container = document.getElementById('balloon-container');
+        if (!container) return;
 
-            // Header bilgilerini güncelle
-            const welcomeMsg = document.getElementById('welcome-msg');
-            if(welcomeMsg) welcomeMsg.innerText = `Selam, ${data.ogrenciAdSoyad || 'Öğrenci'}!`;
-            
-            const displayHeight = document.getElementById('display-height');
-            if(displayHeight) displayHeight.innerText = data.balonYuksekligi || 0;
+        // Kendi bilgilerini güncelle
+        if(document.getElementById('welcome-msg')) 
+            document.getElementById('welcome-msg').innerText = `Selam, ${currentUser.ogrenciAdSoyad}!`;
+        if(document.getElementById('display-height')) 
+            document.getElementById('display-height').innerText = currentUser.balonYuksekligi || 0;
 
-            // Balonu oluştur (Yüksekliği hesaplayarak)
-            // 400px toplam yükseklik, 50px balon boyu payı bırakalım
-            const vh = data.balonYuksekligi || 0;
-            const bottomPos = Math.min(vh, 350); 
+        // SINIFTAKİ TÜM BALONLARI ÇEK
+        db.collection('users')
+            .where('okul', '==', currentUser.okul)
+            .where('sinif', '==', currentUser.sinif)
+            .where('sube', '==', currentUser.sube)
+            .get().then(querySnapshot => {
+                container.innerHTML = ''; // Gökyüzünü temizle
+                
+                querySnapshot.forEach(doc => {
+                    const student = doc.data();
+                    const isMe = doc.id === uid;
+                    const h = student.balonYuksekligi || 0;
+                    const bottomPos = Math.min(h, 330);
+                    // Rastgele yatay pozisyon (balonlar üst üste binmesin diye)
+                    const leftPos = isMe ? 50 : (Math.random() * 80 + 10); 
 
-            container.innerHTML = `
-                <div class="balloon" style="bottom: ${bottomPos}px; left: 50%; transform: translateX(-50%); transition: bottom 1s ease-out;">
-                    <div class="balloon-label">${data.balonEtiketi || 'Balonum'}</div>
-                </div>
-            `;
-            
-            // Eğer rozetler varsa göster
-            if (typeof rozetleriGoster === 'function') {
-                rozetleriGoster(data.rozetler || []);
-            }
-        }
-    }).catch(err => console.error("Kullanıcı verisi yüklenirken hata:", err));
+                    container.innerHTML += `
+                        <div class="balloon" style="bottom: ${bottomPos}px; left: ${leftPos}%; background-color: ${isMe ? '#ff5e57' : '#3498db'}; opacity: ${isMe ? 1 : 0.8};">
+                            <div class="balloon-label">${isMe ? 'Sen' : student.balonEtiketi}</div>
+                        </div>
+                    `;
+                });
+            });
+    });
 };
