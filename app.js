@@ -327,11 +327,38 @@ window.kullaniciyiGoster = function(uid) {
         const container = document.getElementById('balloon-container');
         if (!container) return;
 
-        // Kendi bilgilerini güncelle
+        // Başlıkları güncelle
         if(document.getElementById('welcome-msg')) 
             document.getElementById('welcome-msg').innerText = `Selam, ${currentUser.ogrenciAdSoyad}!`;
         if(document.getElementById('display-height')) 
             document.getElementById('display-height').innerText = currentUser.balonYuksekligi || 0;
+
+        // --- SINIF ARKADAŞLARINI ÇEK ---
+        db.collection('users')
+            .where('okul', '==', currentUser.okul)
+            .where('sinif', '==', currentUser.sinif)
+            .where('sube', '==', currentUser.sube)
+            .get().then(querySnapshot => {
+                container.innerHTML = ''; // Gökyüzünü temizle
+                
+                querySnapshot.forEach(doc => {
+                    const student = doc.data();
+                    const isMe = doc.id === uid;
+                    const h = student.balonYuksekligi || 0;
+                    const bottomPos = Math.min(h, 330);
+                    
+                    // Balonlar üst üste binmesin diye yatayda dağıtalım
+                    const leftPos = isMe ? 50 : (Math.random() * 80 + 10); 
+
+                    container.innerHTML += `
+                        <div class="balloon" style="bottom: ${bottomPos}px; left: ${leftPos}%; background-color: ${isMe ? '#ff5e57' : '#3498db'}; opacity: ${isMe ? 1 : 0.7}; transform: translateX(-50%) scale(${isMe ? 1 : 0.8});">
+                            <div class="balloon-label">${isMe ? 'Sen' : student.balonEtiketi}</div>
+                        </div>
+                    `;
+                });
+            });
+    });
+};
 
         // SINIFTAKİ TÜM BALONLARI ÇEK
         db.collection('users')
