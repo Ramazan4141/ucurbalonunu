@@ -1,5 +1,5 @@
 // ============================================================
-//  UÇUR BALONUNU — TAM GÜNCEL & TEMİZLENMİŞ DOSYA (140 Satır)
+//  UÇUR BALONUNU — TAM VE SORUNSUZ SÜRÜM
 // ============================================================
 
 const firebaseConfig = {
@@ -22,7 +22,7 @@ const SAYFA = (() => {
     return 'giris';
 })();
 
-// --- 1. İL / İLÇE / OKUL MOTORU (Sorunsuz Versiyon) ---
+// --- 1. İL / İLÇE / OKUL SİSTEMİ (Data.js ile Bağlantılı) ---
 window.illeriDoldur = function() {
     const ids = ["sehir", "yeniOkulIl"];
     ids.forEach(id => {
@@ -89,7 +89,7 @@ window.gokyuzunuYukle = function(uid, userData) {
         });
 };
 
-// --- 3. KAYIT / GİRİŞ / ÇIKIŞ ---
+// --- 3. KAYIT / GİRİŞ / ÇIKIŞ (Butonların Bağlı Olduğu Fonksiyonlar) ---
 window.register = function() {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
@@ -113,37 +113,60 @@ window.login = function() {
     auth.signInWithEmailAndPassword(email, pass).catch(e => alert("Hata: " + e.message));
 };
 
-window.logout = function() { auth.signOut().then(() => location.reload()); };
+window.logout = function() { auth.signOut().then(() => { window.location.href = 'index.html'; }); };
 
-// --- 4. ADMIN VE ÖĞRENCİ TETİKLEYİCİLERİ ---
+// --- 4. ARA YÜZ KONTROLLERİ (index.html'deki butonlar için kritik) ---
+window.showRegisterForm = (rol) => {
+    document.getElementById('role-selection-area').style.display = 'none';
+    document.getElementById('dynamic-register-form').style.display = 'block';
+    document.getElementById('rolSecimi').value = rol;
+    window.illeriDoldur();
+};
+
+window.showLoginForm = () => {
+    document.getElementById('role-selection-area').style.display = 'none';
+    document.getElementById('login-area').style.display = 'block';
+};
+
+window.resetRoleSelection = () => {
+    document.getElementById('dynamic-register-form').style.display = 'none';
+    document.getElementById('login-area').style.display = 'none';
+    document.getElementById('role-selection-area').style.display = 'block';
+};
+
+// --- 5. AUTH VE BAŞLANGIÇ TETİKLEYİCİLERİ ---
 auth.onAuthStateChanged(user => {
     if (user) {
         db.collection('users').doc(user.uid).get().then(doc => {
+            if (!doc.exists) return;
             const data = doc.data();
             if (SAYFA === 'admin' && data.rol === 'ogretmen') {
                 window.illeriDoldur();
                 window.gokyuzunuYukle(user.uid, data);
             } else if (SAYFA === 'ogrenci') {
-                document.getElementById('auth-area').style.display = 'none';
-                document.getElementById('user-panel').style.display = 'block';
+                const authArea = document.getElementById('auth-area');
+                if(authArea) authArea.style.display = 'none';
+                const userPanel = document.getElementById('user-panel');
+                if(userPanel) userPanel.style.display = 'block';
+                
                 document.getElementById('welcome-msg').innerText = `Selam, ${data.ogrenciAdSoyad}!`;
                 document.getElementById('display-height').innerText = data.balonYuksekligi || 0;
                 window.gokyuzunuYukle(user.uid, data);
             }
         });
-    } else {
-        window.illeriDoldur();
     }
 });
 
 window.yukseklikArtir = function() {
-    const sayfa = parseInt(document.getElementById('sayfaSayisi').value);
+    const input = document.getElementById('sayfaSayisi');
+    const sayfa = parseInt(input.value);
     if (!sayfa || sayfa <= 0) return;
     const userRef = db.collection('users').doc(auth.currentUser.uid);
     userRef.get().then(doc => {
         const yeniS = (doc.data().toplamOkunanSayfa || 0) + sayfa;
         userRef.update({ toplamOkunanSayfa: yeniS, balonYuksekligi: yeniS * 2 });
-        document.getElementById('sayfaSayisi').value = '';
+        input.value = '';
+        document.getElementById('display-height').innerText = yeniS * 2;
     });
 };
 
@@ -157,9 +180,5 @@ window.okulEkle = function() {
     }, {merge:true}).then(() => alert("Okul Eklendi!"));
 };
 
-// UI Yardımcıları
-window.showRegisterForm = (r) => { 
-    document.getElementById('role-selection-area').style.display='none';
-    document.getElementById('dynamic-register-form').style.display='block';
-    document.getElementById('rolSecimi').value = r;
-};
+// Sayfa yüklendiğinde illeri hazırla
+window.addEventListener('DOMContentLoaded', () => { if(SAYFA !== 'admin') window.illeriDoldur(); });
