@@ -1,187 +1,65 @@
-// ============================================================
-//  UÇUR BALONUNU — %100 ÇALIŞAN TAMİR EDİLMİŞ VERSİYON
-// ============================================================
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Öğretmen Paneli | Uçur Balonunu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>👨‍🏫 Sınıf Yönetimi</h2>
 
-const firebaseConfig = {
-    apiKey: "AIzaSyAYCVekQN3oOh4_2K0KmovLMW9O6xWaH-8",
-    authDomain: "ucurbalonu.firebaseapp.com",
-    projectId: "ucurbalonu",
-    storageBucket: "ucurbalonu.firebasestorage.app",
-    messagingSenderId: "677201903733",
-    appId: "1:677201903733:web:f5708b28f410ae7036b83c"
-};
+        <div class="sky" style="height: 400px; background: skyblue; position: relative; border-radius: 15px; overflow: hidden; margin-bottom: 20px;">
+            <div id="admin-balloon-container"></div>
+        </div>
 
-if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-const auth = firebase.auth();
-const db   = firebase.firestore();
+        <div class="form-box">
+            <h3>📢 Haftalık Hedef / Duyuru</h3>
+            <input type="text" id="haftalikHedef" placeholder="Bu haftaki hedef nedir?">
+            <button onclick="duyuruYayinla()">Tüm Sınıfa Duyur</button>
+        </div>
 
-// Hangi sayfadayız?
-const SAYFA = (() => {
-    if (document.getElementById('yeniOkulIl')) return 'admin';
-    if (document.getElementById('balloon-container')) return 'ogrenci';
-    return 'giris';
-})();
+        <div class="leaderboard">
+            <h3>👥 Öğrenci Listesi</h3>
+            <div id="admin-student-list">
+                <p style="color:#999">Yükleniyor...</p>
+            </div>
+        </div>
 
-// --- 1. ARAYÜZ KONTROLLERİ (Beyaz Ekranı Çözen Kısım) ---
+        <div id="okul-ekleme-alani" style="margin-top: 20px; border-top: 2px solid #eee; padding-top: 15px; background: #f9f9f9; border-radius: 10px; padding: 15px;">
+            <h3 style="color: #2c3e50;">🏫 Yeni Okul Tanımla</h3>
 
-window.showRegisterForm = function(rol) {
-    document.getElementById('role-selection-area').style.display = 'none';
-    document.getElementById('login-area').style.display = 'none';
-    document.getElementById('dynamic-register-form').style.display = 'block';
-    document.getElementById('rolSecimi').value = rol;
-    document.getElementById('form-title').innerText = (rol === 'admin' ? 'Öğretmen Kaydı' : 'Öğrenci Kaydı');
-    window.illeriDoldur();
-};
+            <label style="font-size:13px; color:#666; display:block; margin-bottom:4px;">İl</label>
+            <select id="yeniOkulIl" onchange="yeniOkulIlceleriYukle()" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius:8px; border:2px solid #ddd;">
+                <option value="">İl Seçiniz</option>
+            </select>
 
-window.showLoginForm = function() {
-    document.getElementById('role-selection-area').style.display = 'none';
-    document.getElementById('dynamic-register-form').style.display = 'none';
-    document.getElementById('login-area').style.display = 'block';
-};
+            <label style="font-size:13px; color:#666; display:block; margin-bottom:4px;">İlçe</label>
+            <select id="yeniOkulIlce" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius:8px; border:2px solid #ddd;">
+                <option value="">Önce il seçiniz</option>
+            </select>
 
-window.resetRoleSelection = function() {
-    document.getElementById('dynamic-register-form').style.display = 'none';
-    document.getElementById('login-area').style.display = 'none';
-    document.getElementById('role-selection-area').style.display = 'block';
-};
+            <label style="font-size:13px; color:#666; display:block; margin-bottom:4px;">Okul Adı</label>
+            <input type="text" id="yeniOkulAd" placeholder="Örn: Atatürk İlkokulu" style="width: 95%; margin-bottom: 10px;">
 
-// --- 2. İL / İLÇE / OKUL MOTORU (Data.js ile Tam Uyumlu) ---
+            <button onclick="okulEkle()" style="width: 100%; background: #27ae60; color: white;">
+                ✅ Sisteme Kaydet
+            </button>
+        </div>
 
-window.illeriDoldur = function() {
-    const ids = ["sehir", "yeniOkulIl"];
-    ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (el && typeof ilVerisi !== 'undefined') {
-            el.innerHTML = '<option value="">İl Seçiniz</option>';
-            Object.keys(ilVerisi).sort((a,b) => a.localeCompare(b,'tr')).forEach(il => {
-                el.innerHTML += `<option value="${il}">${il}</option>`;
-            });
-        }
-    });
-};
+        <button onclick="logout()" style="background:red; margin-top:20px; width: 100%;">
+            🚪 Çıkış Yap
+        </button>
+    </div>
 
-window.ilceleriYukle = function(isChild = false) {
-    const ilId = isChild ? "yeniOkulIl" : "sehir";
-    const ilceId = isChild ? "yeniOkulIlce" : "ilce";
-    const sehir = document.getElementById(ilId).value;
-    const ilceSelect = document.getElementById(ilceId);
-    if (!ilceSelect) return;
-    ilceSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
-    if (sehir && ilVerisi[sehir]) {
-        ilVerisi[sehir].forEach(ilce => {
-            ilceSelect.innerHTML += `<option value="${ilce}">${ilce}</option>`;
-        });
-    }
-};
+    <!-- Firebase SDK (body sonunda — en kritik düzeltme) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-window.okullariYukle = function() {
-    const il = document.getElementById("sehir").value;
-    const ilce = document.getElementById("ilce").value;
-    const okulSelect = document.getElementById("okul");
-    if (!okulSelect || !il || !ilce) return;
-    db.collection("sistem").doc("okulListesi").get().then(doc => {
-        okulSelect.innerHTML = '<option value="">Okul Seçiniz</option>';
-        if (doc.exists) {
-            const okullar = doc.data()[`${il}_${ilce}`] || [];
-            okullar.sort().forEach(o => okulSelect.innerHTML += `<option value="${o}">${o}</option>`);
-        }
-    });
-};
-
-// --- 3. BALON VE SOSYAL GÖKYÜZÜ ---
-
-window.gokyuzunuYukle = function(uid, userData) {
-    const container = document.getElementById(SAYFA === 'admin' ? 'admin-balloon-container' : 'balloon-container');
-    if (!container) return;
-
-    db.collection('users')
-        .where('okul', '==', userData.okul)
-        .where('sinif', '==', userData.sinif)
-        .where('sube', '==', userData.sube)
-        .onSnapshot(qs => {
-            container.innerHTML = '';
-            qs.forEach(doc => {
-                const s = doc.data();
-                if (s.rol === 'ogretmen' && SAYFA !== 'admin') return;
-                const isMe = doc.id === uid;
-                const bottomPos = Math.min(s.balonYuksekligi || 0, 330);
-                const leftPos = (isMe && SAYFA !== 'admin') ? 50 : (Math.random() * 80 + 10);
-                container.innerHTML += `
-                    <div class="balloon" style="bottom:${bottomPos}px; left:${leftPos}%; background-color:${isMe ? '#ff5e57' : '#3498db'}; transform:translateX(-50%) scale(${SAYFA==='admin'?0.6:1});">
-                        <div class="balloon-label">${SAYFA === 'admin' ? s.ogrenciAdSoyad : (isMe ? 'Sen' : s.balonEtiketi)}</div>
-                    </div>`;
-            });
-        });
-};
-
-// --- 4. KAYIT / GİRİŞ / ÇIKIŞ ---
-
-window.register = function() {
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('password').value;
-    const rol = document.getElementById('rolSecimi').value;
-    auth.createUserWithEmailAndPassword(email, pass).then(res => {
-        return db.collection("users").doc(res.user.uid).set({
-            ogrenciAdSoyad: document.getElementById('ogrenciAdSoyad').value,
-            balonEtiketi: document.getElementById('takmaAd').value || "Anonim",
-            okul: document.getElementById('okul').value,
-            sinif: document.getElementById('sinif').value,
-            sube: document.getElementById('sube').value,
-            rol: (rol === 'admin' ? 'ogretmen' : 'ogrenci'),
-            balonYuksekligi: 0, toplamOkunanSayfa: 0
-        });
-    }).then(() => { alert("Kayıt Başarılı!"); location.reload(); }).catch(e => alert(e.message));
-};
-
-window.login = function() {
-    const email = document.getElementById('loginEmail').value;
-    const pass = document.getElementById('loginPassword').value;
-    auth.signInWithEmailAndPassword(email, pass).catch(e => alert("Hata: " + e.message));
-};
-
-window.logout = function() { auth.signOut().then(() => { window.location.href = 'index.html'; }); };
-
-// --- 5. BAŞLANGIÇ VE AUTH TAKİBİ ---
-
-auth.onAuthStateChanged(user => {
-    if (user) {
-        db.collection('users').doc(user.uid).get().then(doc => {
-            if (!doc.exists) return;
-            const data = doc.data();
-            if (SAYFA === 'admin') {
-                window.illeriDoldur();
-                window.gokyuzunuYukle(user.uid, data);
-            } else if (SAYFA === 'ogrenci') {
-                document.getElementById('auth-area').style.display = 'none';
-                document.getElementById('user-panel').style.display = 'block';
-                document.getElementById('welcome-msg').innerText = `Selam, ${data.ogrenciAdSoyad}!`;
-                document.getElementById('display-height').innerText = data.balonYuksekligi || 0;
-                window.gokyuzunuYukle(user.uid, data);
-            }
-        });
-    } else {
-        window.illeriDoldur();
-    }
-});
-
-window.yukseklikArtir = function() {
-    const input = document.getElementById('sayfaSayisi');
-    const sayfa = parseInt(input.value);
-    if (!sayfa || sayfa <= 0) return;
-    const userRef = db.collection('users').doc(auth.currentUser.uid);
-    userRef.get().then(doc => {
-        const yeniS = (doc.data().toplamOkunanSayfa || 0) + sayfa;
-        userRef.update({ toplamOkunanSayfa: yeniS, balonYuksekligi: yeniS * 2 });
-        input.value = '';
-    });
-};
-
-window.okulEkle = function() {
-    const il = document.getElementById("yeniOkulIl").value;
-    const ilce = document.getElementById("yeniOkulIlce").value;
-    const ad = document.getElementById("yeniOkulAd").value;
-    if(!il || !ilce || !ad) return alert("Eksik bilgi!");
-    db.collection("sistem").doc("okulListesi").set({
-        [`${il}_${ilce}`]: firebase.firestore.FieldValue.arrayUnion(ad)
-    }, {merge:true}).then(() => alert("Okul Eklendi!"));
-};
+    <!-- Önce data, sonra app (admin.js artık ayrı değil) -->
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
