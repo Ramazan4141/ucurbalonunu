@@ -320,3 +320,35 @@ function setValue(id, val) {
     const el = document.getElementById(id);
     if (el) el.value = val;
 }
+window.kullaniciyiGoster = function(uid) {
+    db.collection('users').doc(uid).get().then(doc => {
+        if (doc.exists) {
+            const data = doc.data();
+            const container = document.getElementById('balloon-container');
+            if (!container) return;
+
+            // Header bilgilerini güncelle
+            const welcomeMsg = document.getElementById('welcome-msg');
+            if(welcomeMsg) welcomeMsg.innerText = `Selam, ${data.ogrenciAdSoyad || 'Öğrenci'}!`;
+            
+            const displayHeight = document.getElementById('display-height');
+            if(displayHeight) displayHeight.innerText = data.balonYuksekligi || 0;
+
+            // Balonu oluştur (Yüksekliği hesaplayarak)
+            // 400px toplam yükseklik, 50px balon boyu payı bırakalım
+            const vh = data.balonYuksekligi || 0;
+            const bottomPos = Math.min(vh, 350); 
+
+            container.innerHTML = `
+                <div class="balloon" style="bottom: ${bottomPos}px; left: 50%; transform: translateX(-50%); transition: bottom 1s ease-out;">
+                    <div class="balloon-label">${data.balonEtiketi || 'Balonum'}</div>
+                </div>
+            `;
+            
+            // Eğer rozetler varsa göster
+            if (typeof rozetleriGoster === 'function') {
+                rozetleriGoster(data.rozetler || []);
+            }
+        }
+    }).catch(err => console.error("Kullanıcı verisi yüklenirken hata:", err));
+};
