@@ -1,6 +1,5 @@
 // ============================================================
 //  UÇUR BALONUNU — Birleşik Uygulama Dosyası
-//  (app.js + admin.js tek dosyada birleştirildi)
 // ============================================================
 
 // --- 1. FIREBASE YAPILANDIRMASI (tek seferlik) ---
@@ -19,20 +18,14 @@ if (!firebase.apps.length) {
 const auth = firebase.auth();
 const db   = firebase.firestore();
 
-// ============================================================
 // --- 2. SAYFA TESPİTİ ---
-// Hangi sayfada olduğumuzu anlıyoruz; böylece her iki sayfada
-// da aynı dosya çalışabilir.
-// ============================================================
 const SAYFA = (() => {
-    if (document.getElementById('yeniOkulIl'))   return 'admin';
+    if (document.getElementById('yeniOkulIl'))        return 'admin';
     if (document.getElementById('balloon-container')) return 'ogrenci';
     return 'giris';
 })();
 
-// ============================================================
-// --- 3. ARAYÜZ FONKSİYONLARI (Giriş / Kayıt ekranı) ---
-// ============================================================
+// --- 3. ARAYÜZ FONKSİYONLARI ---
 window.showLoginForm = function () {
     setDisplay('role-selection-area',   'none');
     setDisplay('dynamic-register-form', 'none');
@@ -40,11 +33,11 @@ window.showLoginForm = function () {
 };
 
 window.showRegisterForm = function (role) {
-    setDisplay('role-selection-area', 'none');
-    setDisplay('login-form-area',     'none');
+    setDisplay('role-selection-area',   'none');
+    setDisplay('login-form-area',       'none');
     setDisplay('dynamic-register-form', 'block');
     setValue('rolSecimi', role);
-    illeriDoldur();          // il listesini doldur
+    illeriDoldur();
 };
 
 window.resetRoleSelection = function () {
@@ -53,32 +46,22 @@ window.resetRoleSelection = function () {
     setDisplay('role-selection-area',   'block');
 };
 
-// ============================================================
-// --- 4. İL / İLÇE / OKUL YÜKLEME ---
-// ============================================================
-
-/**
- * Sayfadaki tüm il <select> elemanlarını doldurur.
- * (Hem kayıt formu #sehir hem de admin paneli #yeniOkulIl)
- */
+// --- 4. IL / ILCE / OKUL YUKLEME ---
 function illeriDoldur() {
     if (typeof ilVerisi === 'undefined') {
-        console.error('ilVerisi bulunamadı! data.js yüklendi mi?');
+        console.error('ilVerisi bulunamadi! data.js yuklendi mi?');
         return;
     }
-
     const hedefler = ['sehir', 'yeniOkulIl'];
-    const siralanmisIller = Object.keys(ilVerisi).sort((a, b) =>
-        a.localeCompare(b, 'tr')
-    );
+    const siralanmisIller = Object.keys(ilVerisi).sort((a, b) => a.localeCompare(b, 'tr'));
 
-    hedefler.forEach(id => {
+    hedefler.forEach(function(id) {
         const el = document.getElementById(id);
         if (!el) return;
-        el.innerHTML = '<option value="">İl Seçiniz</option>';
-        siralanmisIller.forEach(il => {
+        el.innerHTML = '<option value="">Il Seciniz</option>';
+        siralanmisIller.forEach(function(il) {
             const opt = document.createElement('option');
-            opt.value   = il;
+            opt.value = il;
             opt.textContent = il;
             el.appendChild(opt);
         });
@@ -86,32 +69,29 @@ function illeriDoldur() {
 }
 window.illeriDoldur = illeriDoldur;
 
-/** Kayıt formundaki #sehir seçimine bağlı ilçeleri doldurur */
 window.ilceleriYukle = function () {
-    const sehir     = getValue('sehir');
+    const sehir = getValue('sehir');
     const ilceSelect = document.getElementById('ilce');
     if (!ilceSelect) return;
-    ilceSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
+    ilceSelect.innerHTML = '<option value="">Ilce Seciniz</option>';
     if (sehir && ilVerisi[sehir]) {
-        ilVerisi[sehir].forEach(ilce => {
+        ilVerisi[sehir].forEach(function(ilce) {
             const opt = document.createElement('option');
             opt.value = ilce; opt.textContent = ilce;
             ilceSelect.appendChild(opt);
         });
     }
-    // İlçe değişince okul listesini sıfırla
     const okulSelect = document.getElementById('okul');
-    if (okulSelect) okulSelect.innerHTML = '<option value="">Okul Seçiniz</option>';
+    if (okulSelect) okulSelect.innerHTML = '<option value="">Okul Seciniz</option>';
 };
 
-/** Admin panelindeki #yeniOkulIl seçimine bağlı ilçeleri doldurur */
 window.yeniOkulIlceleriYukle = function () {
-    const sehir     = getValue('yeniOkulIl');
+    const sehir = getValue('yeniOkulIl');
     const ilceSelect = document.getElementById('yeniOkulIlce');
     if (!ilceSelect) return;
-    ilceSelect.innerHTML = '<option value="">İlçe Seçiniz</option>';
+    ilceSelect.innerHTML = '<option value="">Ilce Seciniz</option>';
     if (sehir && ilVerisi[sehir]) {
-        ilVerisi[sehir].forEach(ilce => {
+        ilVerisi[sehir].forEach(function(ilce) {
             const opt = document.createElement('option');
             opt.value = ilce; opt.textContent = ilce;
             ilceSelect.appendChild(opt);
@@ -119,53 +99,54 @@ window.yeniOkulIlceleriYukle = function () {
     }
 };
 
-/** Kayıt formunda il+ilçe seçilince Firebase'den okulları çeker */
 window.okullariYukle = function () {
     const il   = getValue('sehir');
     const ilce = getValue('ilce');
     const okulSelect = document.getElementById('okul');
     if (!okulSelect || !il || !ilce) return;
 
-    db.collection('sistem').doc('okulListesi').get().then(doc => {
-        okulSelect.innerHTML = '<option value="">Okul Seçiniz</option>';
+    db.collection('sistem').doc('okulListesi').get().then(function(doc) {
+        okulSelect.innerHTML = '<option value="">Okul Seciniz</option>';
         if (doc.exists) {
-            const okullar = doc.data()[`${il}_${ilce}`] || [];
-            okullar.sort((a, b) => a.localeCompare(b, 'tr')).forEach(o => {
+            const okullar = doc.data()[il + '_' + ilce] || [];
+            okullar.sort(function(a, b) { return a.localeCompare(b, 'tr'); }).forEach(function(o) {
                 const opt = document.createElement('option');
                 opt.value = o; opt.textContent = o;
                 okulSelect.appendChild(opt);
             });
         }
-    }).catch(e => console.error('Okullar yüklenemedi:', e));
+    }).catch(function(e) { console.error('Okullar yuklenemedi:', e); });
 };
 
-// ============================================================
-// --- 5. ADMİN: OKUL EKLEME & ÖĞRENCİ LİSTESİ & DUYURU ---
-// ============================================================
-
-/** Yeni okul Firestore'a kaydeder */
+// --- 5. ADMIN: OKUL EKLEME & DUYURU ---
 window.okulEkle = function () {
     const il     = getValue('yeniOkulIl');
     const ilce   = getValue('yeniOkulIlce');
-    const okulAd = (document.getElementById('yeniOkulAd')?.value || '').trim();
-
+    const okulAd = (document.getElementById('yeniOkulAd') ? document.getElementById('yeniOkulAd').value.trim() : '');
     if (!il || !ilce || !okulAd) {
-        return alert('Lütfen il, ilçe ve okul adını eksiksiz doldurun!');
+        alert('Lutfen il, ilce ve okul adini eksiksiz doldurun!');
+        return;
     }
-
-    const anahtar = `${il}_${ilce}`;
-    db.collection('sistem').doc('okulListesi').set({
-        [anahtar]: firebase.firestore.FieldValue.arrayUnion(okulAd)
-    }, { merge: true })
-    .then(() => {
-        alert(`"${okulAd}" başarıyla sisteme eklendi! ✅`);
+    const anahtar = il + '_' + ilce;
+    db.collection('sistem').doc('okulListesi').set(
+        { [anahtar]: firebase.firestore.FieldValue.arrayUnion(okulAd) },
+        { merge: true }
+    ).then(function() {
+        alert('"' + okulAd + '" basariyla sisteme eklendi!');
         document.getElementById('yeniOkulAd').value = '';
-        // İlçe seçimini koru, sadece okul alanını sıfırla
-    })
-    .catch(e => alert('Hata oluştu: ' + e.message));
+    }).catch(function(e) { alert('Hata: ' + e.message); });
 };
 
-/** Tüm öğrencileri admin panelinde listeler */
+window.duyuruYayinla = function () {
+    const mesaj = getValue('haftalikHedef');
+    if (!mesaj) { alert('Lutfen duyuru metnini yazin!'); return; }
+    db.collection('sistem').doc('duyuru').set({
+        mesaj: mesaj,
+        tarih: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function() { alert('Duyuru yayinlandi!'); });
+};
+
+// --- 6. ADMIN: OGRENCI LISTESI ---
 function ogrenciListele() {
     const liste = document.getElementById('admin-student-list');
     if (!liste) return;
@@ -173,188 +154,167 @@ function ogrenciListele() {
     db.collection('users').where('rol', '==', 'ogrenci')
         .orderBy('balonYuksekligi', 'desc')
         .get()
-        .then(snapshot => {
+        .then(function(snapshot) {
             if (snapshot.empty) {
-                liste.innerHTML = '<p style="color:#999">Henüz kayıtlı öğrenci yok.</p>';
+                liste.innerHTML = '<p style="color:#999">Henuz kayitli ogrenci yok.</p>';
                 return;
             }
             liste.innerHTML = '';
-            snapshot.forEach(doc => {
+            snapshot.forEach(function(doc) {
                 const d = doc.data();
-                liste.innerHTML += `
-                    <div class="student-admin-card">
-                        <span>🎈 <strong>${d.balonEtiketi || d.ogrenciAdSoyad}</strong>
-                            <small style="color:#999"> — ${d.okul || '?'} / ${d.sinif || '?'}${d.sube || ''}</small>
-                        </span>
-                        <span style="font-weight:bold; color:#3498db">${d.balonYuksekligi || 0} m</span>
-                    </div>`;
+                liste.innerHTML += '<div class="student-admin-card">' +
+                    '<span>🎈 <strong>' + (d.balonEtiketi || d.ogrenciAdSoyad) + '</strong>' +
+                    '<small style="color:#999"> — ' + (d.okul || '?') + ' / ' + (d.sinif || '?') + (d.sube || '') + '</small></span>' +
+                    '<span style="font-weight:bold;color:#3498db">' + (d.balonYuksekligi || 0) + ' m</span>' +
+                    '</div>';
             });
         })
-        .catch(e => {
-            liste.innerHTML = `<p style="color:red">Liste yüklenemedi: ${e.message}</p>`;
+        .catch(function(e) {
+            liste.innerHTML = '<p style="color:red">Liste yuklenemedi: ' + e.message + '</p>';
         });
 }
 
-/** Haftalık hedef / duyuru yayınlar */
-window.duyuruYayinla = function () {
-    const mesaj = getValue('haftalikHedef');
-    if (!mesaj) return alert('Lütfen duyuru metnini yazın!');
-    db.collection('sistem').doc('duyuru').set({
-        mesaj: mesaj,
-        tarih: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => alert('Duyuru tüm sınıfa yayınlandı! 📢'));
-};
-
-// ============================================================
-// --- 6. ÖĞRENCİ: BALON UÇURMA ---
-// ============================================================
+// --- 7. OGRENCI: BALON UCURMA ---
 window.yukseklikArtir = function () {
-    const sayfa = parseInt(document.getElementById('sayfaSayisi')?.value || '0');
-    if (isNaN(sayfa) || sayfa <= 0) return alert('Geçerli bir sayfa sayısı girin!');
+    const sayfa = parseInt(document.getElementById('sayfaSayisi') ? document.getElementById('sayfaSayisi').value : '0');
+    if (isNaN(sayfa) || sayfa <= 0) { alert('Gecerli bir sayfa sayisi girin!'); return; }
     const user = auth.currentUser;
-    if (!user) return alert('Oturum bulunamadı, lütfen tekrar giriş yapın.');
+    if (!user) { alert('Oturum bulunamadi.'); return; }
 
     db.collection('users').doc(user.uid).update({
         toplamOkunanSayfa: firebase.firestore.FieldValue.increment(sayfa),
         balonYuksekligi:   firebase.firestore.FieldValue.increment(sayfa * 2)
-    }).then(() => {
+    }).then(function() {
         document.getElementById('sayfaSayisi').value = '';
-        alert('Balonun yükseldi! 🚀');
-        // Ekrandaki yüksekliği güncelle
-        const user2 = auth.currentUser;
-        if (user2) kullaniciyiGoster(user2.uid);
+        alert('Balonun yukseldi!');
+        kullaniciyiGoster(user.uid);
     });
 };
 
-// ============================================================
-// --- 7. AUTH İŞLEMLERİ ---
-// ============================================================
+// --- 8. AUTH ---
 window.register = function () {
     const email = getValue('email');
     const pass  = getValue('password');
     const rol   = getValue('rolSecimi');
+    if (!email || !pass) { alert('E-posta ve sifre zorunludur.'); return; }
 
-    if (!email || !pass) return alert('E-posta ve şifre zorunludur.');
-
-    auth.createUserWithEmailAndPassword(email, pass).then(res => {
+    auth.createUserWithEmailAndPassword(email, pass).then(function(res) {
         const userObj = {
-            ogrenciAdSoyad:   getValue('ogrenciAdSoyad'),
-            balonEtiketi:     getValue('takmaAd') || 'Gizli Balon',
-            il:               getValue('sehir'),
-            ilce:             getValue('ilce'),
-            okul:             getValue('okul'),
-            sinif:            getValue('sinif'),
-            sube:             getValue('sube'),
-            rol:              (rol === 'admin') ? 'ogretmen' : 'ogrenci',
-            balonYuksekligi:  0,
+            ogrenciAdSoyad:    getValue('ogrenciAdSoyad'),
+            balonEtiketi:      getValue('takmaAd') || 'Gizli Balon',
+            il:                getValue('sehir'),
+            ilce:              getValue('ilce'),
+            okul:              getValue('okul'),
+            sinif:             getValue('sinif'),
+            sube:              getValue('sube'),
+            rol:               (rol === 'admin') ? 'ogretmen' : 'ogrenci',
+            balonYuksekligi:   0,
             toplamOkunanSayfa: 0
         };
         return db.collection('users').doc(res.user.uid).set(userObj);
-    })
-    .then(() => alert('Kayıt başarılı! Giriş yapabilirsiniz. 🎉'))
-    .catch(e => alert('Kayıt hatası: ' + e.message));
+    }).then(function() {
+        alert('Kayit basarili!');
+    }).catch(function(e) { alert('Kayit hatasi: ' + e.message); });
 };
 
 window.login = function () {
     const email = getValue('loginEmail');
     const pass  = getValue('loginPassword');
 
-    auth.signInWithEmailAndPassword(email, pass).then(res => {
+    auth.signInWithEmailAndPassword(email, pass).then(function(res) {
         return db.collection('users').doc(res.user.uid).get();
-    }).then(doc => {
-        if (!doc.exists) throw new Error('Kullanıcı verisi bulunamadı.');
-        if (doc.data().rol === 'ogretmen') {
+    }).then(function(doc) {
+        if (!doc.exists) throw new Error('Kullanici verisi bulunamadi.');
+        const rol = doc.data().rol;
+        const yetkiliRoller = ['ogretmen', 'admin', 'superadmin'];
+        if (yetkiliRoller.includes(rol)) {
             window.location.href = 'admin.html';
         } else {
             setDisplay('auth-area',  'none');
             setDisplay('user-panel', 'block');
             kullaniciyiGoster(doc.id);
         }
-    }).catch(e => alert('Giriş hatası: ' + e.message));
+    }).catch(function(e) { alert('Giris hatasi: ' + e.message); });
 };
 
 window.logout = function () {
-    auth.signOut().then(() => {
-        window.location.href = 'index.html';
-    });
+    auth.signOut().then(function() { window.location.href = 'index.html'; });
 };
 
-// ============================================================
-// --- 8. KULLANICI PANELİ ---
-// ============================================================
+// --- 9. KULLANICI PANELI ---
 function kullaniciyiGoster(uid) {
-    db.collection('users').doc(uid).get().then(doc => {
+    db.collection('users').doc(uid).get().then(function(doc) {
         if (!doc.exists) return;
         const d = doc.data();
         const hosgeldin = document.getElementById('welcome-msg');
         const display   = document.getElementById('display-height');
-        if (hosgeldin) hosgeldin.textContent = `Merhaba, ${d.balonEtiketi || d.ogrenciAdSoyad}! 👋`;
+        if (hosgeldin) hosgeldin.textContent = 'Merhaba, ' + (d.balonEtiketi || d.ogrenciAdSoyad) + '!';
         if (display)   display.textContent   = d.balonYuksekligi || 0;
     });
 }
 
-// Duyuruyu öğrenci panelinde göster
 function duyuruyuYukle() {
     const alan = document.getElementById('target-area');
     if (!alan) return;
-    db.collection('sistem').doc('duyuru').get().then(doc => {
+    db.collection('sistem').doc('duyuru').get().then(function(doc) {
         if (doc.exists && doc.data().mesaj) {
-            alan.innerHTML = `📢 <strong>Haftalık Hedef:</strong> ${doc.data().mesaj}`;
+            alan.innerHTML = '<strong>Haftalik Hedef:</strong> ' + doc.data().mesaj;
             alan.style.display = 'block';
         }
     });
 }
 
-// ============================================================
-// --- 9. OTURUM DEĞİŞİKLİĞİ DİNLEYİCİSİ ---
-// ============================================================
-auth.onAuthStateChanged(user => {
+// --- 10. OTURUM DEGISIKLIGI DINLEYICISI ---
+auth.onAuthStateChanged(function(user) {
     if (SAYFA === 'admin') {
-        // Admin sayfasında oturum yoksa index'e yönlendir
-        if (!user) {
-            window.location.href = 'index.html';
-            return;
-        }
-        db.collection('users').doc(user.uid).get().then(doc => {
-            if (!doc.exists || doc.data().rol !== 'ogretmen') {
+        if (!user) { window.location.href = 'index.html'; return; }
+
+        db.collection('users').doc(user.uid).get().then(function(doc) {
+            if (!doc.exists) { window.location.href = 'index.html'; return; }
+
+            const rol = doc.data().rol;
+            const yetkiliRoller = ['ogretmen', 'admin', 'superadmin'];
+
+            if (!yetkiliRoller.includes(rol)) {
                 window.location.href = 'index.html';
-            } else {
-                illeriDoldur();   // ← İL LİSTESİNİ DOLDUR (düzeltilen satır)
-                ogrenciListele();
+                return;
+            }
+
+            illeriDoldur();
+            ogrenciListele();
+
+            // Okul ekleme: sadece admin ve superadmin gorur
+            const okulAlani = document.getElementById('okul-ekleme-alani');
+            if (okulAlani) {
+                okulAlani.style.display = (rol === 'admin' || rol === 'superadmin') ? 'block' : 'none';
             }
         });
+
     } else if (SAYFA === 'ogrenci' || SAYFA === 'giris') {
-        if (user) {
-            // Giriş yapmış kullanıcı index'teyse paneli göster
-            if (document.getElementById('auth-area')) {
-                setDisplay('auth-area',  'none');
-                setDisplay('user-panel', 'block');
-                kullaniciyiGoster(user.uid);
-                duyuruyuYukle();
-            }
+        if (user && document.getElementById('auth-area')) {
+            setDisplay('auth-area',  'none');
+            setDisplay('user-panel', 'block');
+            kullaniciyiGoster(user.uid);
+            duyuruyuYukle();
         }
     }
 });
 
-// ============================================================
-// --- 10. SAYFA YÜKLENDİĞİNDE ---
-// ============================================================
-window.addEventListener('DOMContentLoaded', () => {
-    // Yalnızca giriş/kayıt sayfasında il listesini önceden doldur
+// --- 11. SAYFA YUKLENDIGINDE ---
+window.addEventListener('DOMContentLoaded', function() {
     if (SAYFA !== 'admin') {
         illeriDoldur();
     }
 });
 
-// ============================================================
 // --- YARDIMCI FONKSİYONLAR ---
-// ============================================================
 function setDisplay(id, val) {
     const el = document.getElementById(id);
     if (el) el.style.display = val;
 }
 function getValue(id) {
-    return document.getElementById(id)?.value?.trim() || '';
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
 }
 function setValue(id, val) {
     const el = document.getElementById(id);
