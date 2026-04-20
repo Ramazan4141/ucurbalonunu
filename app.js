@@ -1,5 +1,5 @@
 // ============================================================
-//  UÇUR BALONUNU — MASTER APP ENGINE (V5 - ROLES & BADGES)
+//  UÇUR BALONUNU — MASTER APP ENGINE (V5.1 - BALLOONS FIX)
 // ============================================================
 
 const firebaseConfig = {
@@ -151,7 +151,10 @@ function balonlariGoster(okul, sinif, sube) {
         document.getElementById('admin-balloon-container') : 
         document.getElementById('balloon-container');
     
-    if (!container) return;
+    if (!container) {
+        console.warn("Balon container bulunamadı!");
+        return;
+    }
 
     const uid = auth.currentUser ? auth.currentUser.uid : null;
 
@@ -160,7 +163,7 @@ function balonlariGoster(okul, sinif, sube) {
         .where('sinif', '==', sinif)
         .where('sube', '==', sube)
         .onSnapshot(querySnapshot => {
-            container.innerHTML = '';
+            container.innerHTML = ''; // Temizle
             querySnapshot.forEach(doc => {
                 const s = doc.data();
                 
@@ -170,8 +173,8 @@ function balonlariGoster(okul, sinif, sube) {
                 const b = document.createElement('div');
                 b.className = 'balloon';
                 
-                // Balon yüksekliğini hesapla (1 sayfa = 2 metre)
-                const yOffset = Math.min((s.balonYuksekligi || 0) * 1, 330);
+                // Balon yüksekliğini hesapla
+                const yOffset = Math.min((s.balonYuksekligi || 0), 330);
                 b.style.bottom = (20 + yOffset) + 'px';
                 
                 // Öğrenci panelinde kendi balonu ortaya, admin panelinde random
@@ -180,14 +183,21 @@ function balonlariGoster(okul, sinif, sube) {
                 
                 // Renk: Kendi balonu kırmızı, diğerleri mavi
                 b.style.backgroundColor = (isMe && !IS_ADMIN_PAGE) ? '#ff5e57' : '#3498db';
-                b.style.transform = IS_ADMIN_PAGE ? 'scale(0.6)' : 'scale(1)';
+                b.style.transform = IS_ADMIN_PAGE ? 'scale(0.7)' : 'scale(1)';
                 
-                const label = IS_ADMIN_PAGE ? s.ogrenciAdSoyad : (isMe ? 'Sen' : s.balonEtiketi);
-                b.innerHTML = `<div class="balloon-label">${label || 'Anonim'}</div>`;
+                // ÖNEMLİ: Öğrenci panelinde takma isim, admin panelinde gerçek isim
+                let label = '';
+                if (IS_ADMIN_PAGE) {
+                    label = s.ogrenciAdSoyad || 'Anonim';
+                } else {
+                    label = isMe ? 'Sen' : (s.balonEtiketi || 'Anonim');
+                }
+                
+                b.innerHTML = `<div class="balloon-label">${label}</div>`;
                 
                 container.appendChild(b);
             });
-        });
+        }, err => console.error("Balonlar yüklenirken hata:", err));
 }
 
 // --- 9. ÖĞRENCİ LİSTELEME (Öğretmen için) ---
