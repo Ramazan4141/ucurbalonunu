@@ -1,5 +1,5 @@
 // ============================================================
-//  UÇUR BALONUNU — MASTER APP ENGINE (V5.1 - BALLOONS FIX)
+//  UÇUR BALONUNU — MASTER APP ENGINE (V5.2 - FIXED ROLES)
 // ============================================================
 
 const firebaseConfig = {
@@ -88,13 +88,13 @@ function ogrenciPaneliYukle(uid, data) {
     balonlariGoster(data.okul, data.sinif, data.sube);
 }
 
-// --- 6. ADMIN PANELİ MANTIĞI ---
+// --- 6. ADMIN PANELİ MANTIĞI (ÖĞRETMEN) ---
 function adminPaneliYukle(userData) {
     console.log("Admin paneli yükleniyor...");
     gosterGizle('auth-area', 'none');
     gosterGizle('admin-area', 'block');
     
-    window.illeriDoldur();
+    // ÖĞRETMEN panelinde il/ilçe/okul yüklenmez!
     balonlariGoster(userData.okul, userData.sinif, userData.sube);
     ogrenciListele(userData.okul, userData.sinif, userData.sube);
 }
@@ -273,13 +273,16 @@ window.register = function() {
     if (!email || !pass) return alert("E-posta ve şifre gerekli!");
     
     auth.createUserWithEmailAndPassword(email, pass).then(res => {
+        // rol: 'user' ise 'ogrenci', 'admin' ise 'ogretmen'
+        const finalRol = (rol === 'admin' ? 'ogretmen' : 'ogrenci');
+        
         return db.collection("users").doc(res.user.uid).set({
             ogrenciAdSoyad: document.getElementById('ogrenciAdSoyad').value,
             balonEtiketi: document.getElementById('takmaAd').value || "Anonim",
             okul: document.getElementById('okul').value,
             sinif: document.getElementById('sinif').value,
             sube: document.getElementById('sube').value,
-            rol: (rol === 'admin' ? 'ogretmen' : 'ogrenci'),
+            rol: finalRol,
             balonYuksekligi: 0, 
             toplamOkunanSayfa: 0,
             rozet: ''
@@ -352,7 +355,7 @@ window.duyuruYayinla = function() {
     });
 };
 
-// --- 15. YENİ OKUL EKLEME FONKSİYONU ---
+// --- 15. YENİ OKUL EKLEME FONKSİYONU (SADECE SUPERADMIN) ---
 window.okulEkle = function() {
     const il = document.getElementById("yeniOkulIl").value;
     const ilce = document.getElementById("yeniOkulIlce").value;
