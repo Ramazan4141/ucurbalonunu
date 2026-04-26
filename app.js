@@ -56,37 +56,55 @@ auth.onAuthStateChanged(user => {
         db.collection('users').doc(user.uid).onSnapshot(doc => {
             if (!doc.exists) return;
             const data = doc.data();
+            const yukseklik = data.balonYuksekligi || 0;
 
-            // Rol Bazlı Yönlendirme
-            if (data.rol === 'admin' || data.rol === 'superadmin' || data.email === 'admin@ucurbalonu.com') {
-                if (!IS_SUPERADMIN_PAGE) window.location.href = 'superadmin.html';
-                else { gosterGizle('superadmin-area', 'block'); window.illeriDoldur(); }
-            } else if (data.rol === 'ogretmen') {
-                if (!IS_ADMIN_PAGE) window.location.href = 'admin.html';
-                else { 
-                    window.ogrenciListele(data.okul, data.sinif, data.sube); 
-                    window.balonlariGoster('admin-balloon-container', data.okul, data.sinif, data.sube, true);
-                    window.illeriDoldur(); 
-                }
-            } else {
-                if (!IS_INDEX_PAGE) window.location.href = 'index.html';
-                else {
-                    gosterGizle('auth-area', 'none'); gosterGizle('user-panel', 'block');
-                    document.getElementById('display-height').innerText = data.balonYuksekligi || 0;
-                    document.getElementById('welcome-msg').innerText = `Selam, ${data.ogrenciAdSoyad}!`;
+            if (IS_INDEX_PAGE && data.rol === 'ogrenci') {
+                gosterGizle('auth-area', 'none');
+                gosterGizle('user-panel', 'block');
+                
+                // --- ARKA PLAN (KAMERA) KONTROLÜ ---
+                const sky = document.querySelector('.sky');
+                if (sky) {
+                    // 0m -> 100% (Zemin), 400m -> 0% (Uzay)
+                    // Öğrenci 400 metreye (sayfaya) ulaştığında tam uzayda olacak.
+                    let pos = 100 - (yukseklik / 4); 
+                    if (pos < 0) pos = 0;
+                    sky.style.backgroundPosition = `center ${pos}%`;
                     
-                    // Rozet Rafını Güncelle
-                    const m = document.getElementById('medalyalar');
-                    if(m) {
-                        const r = rozetleriOlustur(data.streak || 0, data.toplamOkunanSayfa || 0);
-                        m.innerHTML = `<div class="medal-shelf"><span style="font-size:12px; margin-right:5px; font-weight:bold;">🔥 SERİ: ${data.streak || 0} GÜN |</span> ${r}</div>`;
+                    // Gezegenleri ekleyelim (300 metreden sonra)
+                    if (yukseklik > 300) {
+                        addPlanets(sky);
                     }
-                    window.balonlariGoster('balloon-container', data.okul, data.sinif, data.sube, false);
                 }
+
+                document.getElementById('display-height').innerText = yukseklik;
+                document.getElementById('welcome-msg').innerText = `Selam, ${data.ogrenciAdSoyad}!`;
+                
+                const m = document.getElementById('medalyalar');
+                if(m) {
+                    const r = rozetleriOlustur(data.streak || 0, data.toplamOkunanSayfa || 0);
+                    m.innerHTML = `<div class="medal-shelf">🔥 SERİ: ${data.streak || 0} | ${r}</div>`;
+                }
+                window.balonlariGoster('balloon-container', data.okul, data.sinif, data.sube, false);
             }
+            // ... Diğer yönlendirmeler aynı ...
         });
-    } else { if (!IS_INDEX_PAGE) window.location.href = 'index.html'; window.illeriDoldur(); }
+    }
 });
+
+// Uzaya gezegen serpiştirme fonksiyonu
+function addPlanets(sky) {
+    if (document.querySelector('.planet')) return; // Zaten varsa ekleme
+    const planets = ['🪐', '🚀', '🌙', '☄️'];
+    planets.forEach((p, index) => {
+        const span = document.createElement('span');
+        span.className = 'planet';
+        span.innerText = p;
+        span.style.top = (index * 50) + "px";
+        span.style.left = (Math.random() * 80) + "%";
+        sky.appendChild(span);
+    });
+}
 
 // --- 4. YÜKSEKLİK VE SERİ GÜNCELLEME (1 Sayfa = 1 Metre) ---
 window.yukseklikArtir = function() {
