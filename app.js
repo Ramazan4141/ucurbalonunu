@@ -51,33 +51,47 @@ function rozetleriOlustur(streak, toplam) {
 }
 
 // --- 3. AUTH TAKİBİ VE CANLI PANEL YÖNETİMİ ---
+// ... Firebase config kısımları aynı ...
+
 auth.onAuthStateChanged(user => {
     if (user) {
         db.collection('users').doc(user.uid).onSnapshot(doc => {
             if (!doc.exists) return;
             const data = doc.data();
-            const yukseklik = data.balonYuksekligi || 0;
+            const h = data.balonYuksekligi || 0;
 
             if (IS_INDEX_PAGE && data.rol === 'ogrenci') {
-                gosterGizle('auth-area', 'none');
-                gosterGizle('user-panel', 'block');
-                
-                // --- ARKA PLAN (KAMERA) KONTROLÜ ---
+                // --- 🚀 GÖRSEL MOTOR (KAMERA TAKİBİ) ---
                 const sky = document.querySelector('.sky');
-                if (sky) {
-                    // 0m -> 100% (Zemin), 400m -> 0% (Uzay)
-                    // Öğrenci 400 metreye (sayfaya) ulaştığında tam uzayda olacak.
-                    let pos = 100 - (yukseklik / 4); 
-                    if (pos < 0) pos = 0;
-                    sky.style.backgroundPosition = `center ${pos}%`;
-                    
-                    // Gezegenleri ekleyelim (300 metreden sonra)
-                    if (yukseklik > 300) {
-                        addPlanets(sky);
+                const mountain = document.getElementById('mountain-layer');
+                const stars = document.getElementById('stars-layer');
+
+                // 1. DAĞLARIN HAREKETİ (0-200m arası dağlar aşağı kayar)
+                if (mountain) {
+                    let mPos = h * 0.8; // Balon yükseldikçe dağ aşağı iner
+                    mountain.style.transform = `translateY(${mPos}px)`;
+                    if (h > 250) mountain.style.opacity = "0"; // Çok yükselince dağ silinir
+                    else mountain.style.opacity = "0.8";
+                }
+
+                // 2. GÖKYÜZÜ RENGİ VE YILDIZLAR (150m'den sonra hava kararır)
+                if (sky && stars) {
+                    if (h < 150) {
+                        sky.style.background = "#4facfe"; // Gün yüzü
+                        stars.style.opacity = "0";
+                    } else if (h >= 150 && h < 300) {
+                        sky.style.background = "#1e3799"; // Akşam/Atmosfer dışı
+                        stars.style.opacity = "0.5";
+                        stars.style.top = "0";
+                    } else {
+                        sky.style.background = "#000000"; // TAM UZAY
+                        stars.style.opacity = "1";
+                        if (!document.querySelector('.planet')) addPlanets(sky);
                     }
                 }
 
-                document.getElementById('display-height').innerText = yukseklik;
+                // Standart Panel Güncellemeleri
+                document.getElementById('display-height').innerText = h;
                 document.getElementById('welcome-msg').innerText = `Selam, ${data.ogrenciAdSoyad}!`;
                 
                 const m = document.getElementById('medalyalar');
@@ -87,21 +101,17 @@ auth.onAuthStateChanged(user => {
                 }
                 window.balonlariGoster('balloon-container', data.okul, data.sinif, data.sube, false);
             }
-            // ... Diğer yönlendirmeler aynı ...
         });
     }
 });
 
-// Uzaya gezegen serpiştirme fonksiyonu
 function addPlanets(sky) {
-    if (document.querySelector('.planet')) return; // Zaten varsa ekleme
     const planets = ['🪐', '🚀', '🌙', '☄️'];
-    planets.forEach((p, index) => {
+    planets.forEach((p, i) => {
         const span = document.createElement('span');
         span.className = 'planet';
         span.innerText = p;
-        span.style.top = (index * 50) + "px";
-        span.style.left = (Math.random() * 80) + "%";
+        span.style.cssText = `position:absolute; left:${Math.random()*80}%; top:${i*70}px; font-size:30px; z-index:2;`;
         sky.appendChild(span);
     });
 }
