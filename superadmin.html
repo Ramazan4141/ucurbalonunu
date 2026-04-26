@@ -7,50 +7,23 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container" style="max-width: 600px;">
+    <div class="container" style="max-width: 500px;">
         <div id="superadmin-area" style="display:none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>🛠️ Sistem Yönetimi</h2>
-                <button onclick="logout()" style="background:#e74c3c; padding: 8px 15px; font-size: 13px;">Çıkış Yap</button>
+                <h2>🛠️ Okul Yönetimi</h2>
+                <button onclick="logout()" style="background:#e74c3c; padding: 5px 10px; font-size: 12px;">Çıkış</button>
             </div>
-
-            <div class="card" style="text-align: left; background: #f9f9f9; padding: 20px; border-radius: 15px; border: 1px solid #eee;">
-                <h3 style="margin-bottom: 15px; color: #2c3e50;">yeni Okul Ekle</h3>
-                
-                <label style="font-size: 13px; font-weight: bold;">İl Seçin:</label>
-                <select id="yeniOkulIl" onchange="yeniOkulIlceleriYukle()">
-                    <option value="">İl Seçiniz</option>
-                </select>
-
-                <label style="font-size: 13px; font-weight: bold;">İlçe Seçin:</label>
-                <select id="yeniOkulIlce">
-                    <option value="">İlçe Seçiniz</option>
-                </select>
-
-                <label style="font-size: 13px; font-weight: bold;">Okul Adı:</label>
-                <input type="text" id="yeniOkulAd" placeholder="Örn: Cumhuriyet İlkokulu">
-
-                <button onclick="okulEkle()" style="width: 100%; margin-top: 15px; background: #27ae60;">
-                    ✅ Okulu Sisteme Tanımla
-                </button>
+            <div style="text-align: left; background: #f9f9f9; padding: 15px; border-radius: 15px;">
+                <label>İl Seçin:</label>
+                <select id="yeniOkulIl" onchange="yeniOkulIlceleriYukle()"></select>
+                <label>İlçe Seçin:</label>
+                <select id="yeniOkulIlce"></select>
+                <label>Okul Adı:</label>
+                <input type="text" id="yeniOkulAd" placeholder="Okul Adını Yazın">
+                <button onclick="okulEkle()" style="width: 100%; background: #27ae60; margin-top: 10px;">Okulu Ekle</button>
             </div>
-
-            <div style="margin-top: 30px; padding: 15px; background: #fff3cd; border-radius: 10px; font-size: 13px; color: #856404; text-align: left;">
-                <strong>Not:</strong> Eklediğiniz okullar, öğrenci ve öğretmen kayıt ekranındaki "Okul Seçiniz" listesinde anında görünecektir.
-            </div>
-
-            <div style="margin-top: 20px;">
-                <a href="index.html" style="text-decoration: none; color: #3498db; font-size: 14px;">← Ana Sayfaya Dön</a>
-            </div>
-        </div>
-
-        <div id="unauthorized-msg" style="display:none;">
-            <h2>🚫 Yetkisiz Erişim</h2>
-            <p>Bu sayfayı görüntülemek için Süper Admin yetkiniz olmalıdır.</p>
-            <button onclick="window.location.href='index.html'">Ana Sayfaya Dön</button>
         </div>
     </div>
-
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
