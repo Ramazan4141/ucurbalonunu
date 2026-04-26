@@ -1,226 +1,38 @@
-/* ============================================================
-   UÇUR BALONUNU — MASTER STYLE (V17.0 - GÖRSEL ŞÖLEN)
-   ============================================================ */
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+.container { background: white; padding: 25px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 95%; max-width: 480px; text-align: center; }
 
-/* 1. GENEL SAYFA AYARLARI */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f0f2f5;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-
-.container {
-    background: white;
-    padding: 25px;
-    border-radius: 25px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-    width: 95%;
-    max-width: 480px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
-
-/* 2. DİNAMİK GÖKYÜZÜ VE KATMANLAR */
 .sky {
-    height: 400px;
-    position: relative;
-    border-radius: 20px;
-    overflow: hidden;
-    margin-bottom: 20px;
-    border: 4px solid #fff;
-    /* Mavi Gökyüzünden Uzaya Geçiş Gradiyenti */
+    height: 400px; position: relative; border-radius: 20px; overflow: hidden; margin-bottom: 20px; border: 4px solid #fff;
     background: linear-gradient(to top, #4facfe 0%, #00f2fe 30%, #1e3799 70%, #000 100%);
-    background-size: 100% 400%; /* Arka planı 4 kat uzattık */
-    background-position: center 100%; /* Başlangıç: Zemin */
-    transition: background-position 2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: inset 0 0 50px rgba(0,0,0,0.1);
+    background-size: 100% 400%; background-position: center 100%; transition: background-position 2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 🏔️ DAĞ KATMANI (Yer yüzü efekti) */
 #mountain-layer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 150px;
-    background: url('https://cdn-icons-png.flaticon.com/512/2619/2619056.png'); /* Örnek dağ simgesi */
-    background-size: 200px auto;
-    background-repeat: repeat-x;
-    background-position: bottom;
-    transition: transform 1.5s ease-out, opacity 1s ease;
-    z-index: 1;
-    opacity: 0.7;
-    pointer-events: none; /* Balona tıklamayı engellemesin */
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 150px;
+    background: url('https://cdn-icons-png.flaticon.com/512/2619/2619056.png');
+    background-size: 200px auto; background-repeat: repeat-x; background-position: bottom;
+    transition: transform 1.5s ease-out, opacity 1s ease; z-index: 1; opacity: 0.7; pointer-events: none;
 }
 
-/* ✨ YILDIZ KATMANI (Uzay efekti) */
 #stars-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        radial-gradient(white, rgba(255,255,255,.2) 1px, transparent 20px),
-        radial-gradient(white, rgba(255,255,255,.15) 2px, transparent 40px);
-    background-size: 80px 80px, 150px 150px;
-    transition: opacity 2s ease;
-    z-index: 0;
-    opacity: 0;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: radial-gradient(white, rgba(255,255,255,.2) 1px, transparent 20px);
+    background-size: 80px 80px; transition: opacity 2s ease; z-index: 0; opacity: 0;
 }
 
-/* 3. BALON TASARIMI VE ANİMASYONLARI */
 .balloon {
-    width: 42px;
-    height: 56px;
-    border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
-    position: absolute;
-    bottom: 0;
-    transition: bottom 1.5s cubic-bezier(0.4, 0, 0.2, 1), left 1.5s ease-in-out;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: inset -4px -4px 10px rgba(0,0,0,0.15);
-    z-index: 5;
+    width: 42px; height: 56px; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+    position: absolute; bottom: 0; transition: bottom 1.5s cubic-bezier(0.4, 0, 0.2, 1), left 1.5s ease-in-out;
+    display: flex; justify-content: center; align-items: center; box-shadow: inset -4px -4px 10px rgba(0,0,0,0.15); z-index: 5;
 }
 
-/* Balon Düğümü */
-.balloon::before {
-    content: "";
-    width: 8px;
-    height: 6px;
-    background: inherit;
-    position: absolute;
-    bottom: -3px;
-    clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
-}
+.balloon-label { position: absolute; top: -28px; background: rgba(255, 255, 255, 0.9); padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; white-space: nowrap; color: #333; }
 
-/* Balon İpi */
-.balloon::after {
-    content: "";
-    width: 1px;
-    height: 35px;
-    background: rgba(0,0,0,0.15);
-    position: absolute;
-    bottom: -38px;
-}
+.medal-shelf { display: inline-flex; align-items: center; justify-content: center; gap: 12px; padding: 6px 18px; background: #f8f9fa; border-radius: 30px; border: 2px dashed #d1d8e0; margin-bottom: 10px; }
+.medal-icon { font-size: 26px; cursor: help; position: relative; transition: transform 0.2s; }
+.medal-icon:hover { transform: scale(1.3); }
+.medal-icon[title]:hover::after { content: attr(title); position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 6px 12px; border-radius: 10px; font-size: 11px; white-space: nowrap; z-index: 100; }
 
-.balloon-label {
-    position: absolute;
-    top: -28px;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 10px;
-    font-weight: bold;
-    white-space: nowrap;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    color: #333;
-}
-
-/* 4. 🎖️ ROZET RAFI VE TOOLTIP SİSTEMİ */
-#medalyalar {
-    margin: 10px 0;
-    min-height: 45px;
-}
-
-.medal-shelf {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 6px 18px;
-    background: #f8f9fa;
-    border-radius: 30px;
-    border: 2px dashed #d1d8e0;
-}
-
-.medal-icon {
-    font-size: 26px;
-    cursor: help;
-    position: relative;
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.medal-icon:hover {
-    transform: scale(1.3) rotate(5deg);
-}
-
-/* Tooltip (Bilgi Kutucuğu) - PC ve Mobil Uyumlu */
-.medal-icon[title]:hover::after {
-    content: attr(title);
-    position: absolute;
-    bottom: 125%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.85);
-    color: #fff;
-    padding: 6px 12px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: normal;
-    white-space: nowrap;
-    z-index: 100;
-    pointer-events: none;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-/* 5. FORMLAR, BUTONLAR VE TABLOLAR */
-input, select {
-    width: 85%;
-    padding: 12px;
-    margin: 8px 0;
-    border: 2px solid #eee;
-    border-radius: 12px;
-    font-size: 15px;
-    outline: none;
-}
-
-button {
-    background: #3498db;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-}
-
-button:hover {
-    background: #2980b9;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
-}
-
-/* ÖĞRETMEN LİSTESİ */
-.student-admin-card {
-    background: #fff;
-    border: 1px solid #f1f2f6;
-    padding: 12px;
-    margin-bottom: 8px;
-    border-radius: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-
-/* Gezegenler (Uzay sembolleri) */
-.planet {
-    position: absolute;
-    z-index: 2;
-    filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
-    animation: float 4s ease-in-out infinite alternate;
-}
-
-@keyframes float {
-    from { transform: translateY(0); }
-    to { transform: translateY(-10px); }
-}
+input, select { width: 85%; padding: 12px; margin: 8px 0; border: 2px solid #eee; border-radius: 12px; font-size: 15px; outline: none; }
+button { background: #3498db; color: white; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s; }
+button:hover { background: #2980b9; transform: translateY(-2px); }
