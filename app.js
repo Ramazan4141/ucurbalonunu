@@ -1,4 +1,3 @@
-// FIREBASE CONFIG
 const firebaseConfig = {
     apiKey: "AIzaSyAYCVekQN3oOh4_2K0KmovLMW9O6xWaH-8",
     authDomain: "ucurbalonu.firebaseapp.com",
@@ -19,17 +18,15 @@ const gosterGizle = (id, durum) => { const el = document.getElementById(id); if 
 const bugunTarihiniAl = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
 const dunTarihiniAl = () => { const d = new Date(); d.setDate(d.getDate() - 1); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
 
-// ROZET MOTORU
 function rozetleriOlustur(streak, toplam) {
     let r = [];
     if (streak >= 3)  r.push({e: "🌱", t: "3 Günlük Seri!"});
     if (streak >= 10) r.push({e: "🔥", t: "10 Günlük Seri!"});
     if (toplam >= 100)  r.push({e: "🎖️", t: "100 Sayfa!"});
-    if (toplam >= 1000) r.push({e: "👑", t: "1000 Sayfa Kralı!"});
+    if (toplam >= 1000) r.push({e: "👑", t: "Okuma Kralı!"});
     return r.length === 0 ? `🐣` : r.map(i => `<span class="medal-icon" title="${i.t}">${i.e}</span>`).join("");
 }
 
-// ANA TAKİP
 auth.onAuthStateChanged(user => {
     if (user) {
         db.collection('users').doc(user.uid).onSnapshot(doc => {
@@ -48,12 +45,9 @@ auth.onAuthStateChanged(user => {
                     document.getElementById('display-height').innerText = h;
                     document.getElementById('welcome-msg').innerText = `Selam, ${data.ogrenciAdSoyad}!`;
                     
-                    // --- 🏔️ ARKA PLAN KAYDIRMA (Sihirli Kısım) ---
                     const sky = document.getElementById('main-sky');
                     if (sky) {
-                        // Resim çok dikey olduğu için % değerini yüksekliğe göre ayarlıyoruz
-                        // 0 metrede %100 (en alt), 500+ metrede %0 (en üst)
-                        let pos = 100 - (h / 5); 
+                        let pos = 100 - (h / 4); // Yüksekliğe göre resim kayar
                         if (pos < 0) pos = 0;
                         sky.style.backgroundPosition = `center ${pos}%`;
                     }
@@ -67,7 +61,6 @@ auth.onAuthStateChanged(user => {
     } else { if (!IS_INDEX_PAGE) window.location.href = 'index.html'; window.illeriDoldur(); }
 });
 
-// YÜKSEKLİK ARTIRMA
 window.yukseklikArtir = function() {
     const input = document.getElementById('sayfaSayisi');
     const s = parseInt(input.value);
@@ -80,10 +73,9 @@ window.yukseklikArtir = function() {
         let streak = (d.sonOkumaTarihi === dunTarihiniAl()) ? (d.streak || 0) + 1 : 1;
         let toplam = (d.toplamOkunanSayfa || 0) + s;
         return ref.update({ toplamOkunanSayfa: toplam, balonYuksekligi: toplam, sonOkumaTarihi: bugun, streak: streak });
-    }).then(() => { input.value = ''; }).catch(e => alert(e.message));
+    }).then(() => { input.value = ''; });
 };
 
-// YARDIMCI GÖRSEL FONKSİYONLAR
 window.balonlariGoster = (c, o, si, su, isAdmin) => {
     const container = document.getElementById(c); if (!container) return;
     db.collection('users').where('okul', '==', o).where('sinif', '==', si).where('sube', '==', su).onSnapshot(qs => {
@@ -91,7 +83,6 @@ window.balonlariGoster = (c, o, si, su, isAdmin) => {
         qs.forEach(doc => {
             const d = doc.data(); if (d.rol === 'ogretmen') return;
             const isMe = (auth.currentUser && doc.id === auth.currentUser.uid);
-            // Balonun kutu dışına taşmaması için yüksekliği sınırlıyoruz (max 350px)
             let visualH = Math.min(d.balonYuksekligi || 0, 350);
             container.innerHTML += `<div class="balloon" style="bottom:${visualH}px; left:${(isMe && !isAdmin) ? 50 : (Math.random() * 80 + 10)}%; background-color:${d.balloonColor || '#3498db'}; transform:translateX(-50%) scale(${isAdmin?0.6:1});">
                 <div class="balloon-label">${isAdmin ? d.ogrenciAdSoyad : (isMe ? 'Sen' : d.balonEtiketi)}</div></div>`;
@@ -99,7 +90,6 @@ window.balonlariGoster = (c, o, si, su, isAdmin) => {
     });
 };
 
-// AUTH & UI FLOW
 window.login = () => { auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value).catch(e => alert(e.message)); };
 window.logout = () => auth.signOut().then(() => window.location.href = 'index.html');
 window.register = () => {
