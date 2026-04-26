@@ -1,7 +1,3 @@
-// ============================================================
-//  UÇUR BALONUNU — SAFE APP ENGINE (V23.0 - DEBUG MODE)
-// ============================================================
-
 const firebaseConfig = {
     apiKey: "AIzaSyAYCVekQN3oOh4_2K0KmovLMW9O6xWaH-8",
     authDomain: "ucurbalonu.firebaseapp.com",
@@ -11,136 +7,102 @@ const firebaseConfig = {
     appId: "1:677201903733:web:f5708b28f410ae7036b83c"
 };
 
-// Güvenli Firebase Başlatma
-try {
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-} catch (e) { console.error("Firebase başlatılamadı:", e); }
-
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const auth = firebase.auth();
 const db   = firebase.firestore();
 
-// Sayfa Kontrolleri
 const IS_ADMIN_PAGE = window.location.pathname.includes('admin.html');
 const IS_SUPERADMIN_PAGE = window.location.pathname.includes('superadmin.html');
 const IS_INDEX_PAGE = !IS_ADMIN_PAGE && !IS_SUPERADMIN_PAGE;
 
 const gosterGizle = (id, durum) => { const el = document.getElementById(id); if (el) el.style.display = durum; };
+const bugunTarihiniAl = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
+const dunTarihiniAl = () => { const d = new Date(); d.setDate(d.getDate() - 1); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
 
-// ROZETLER
-function rozetleriOlustur(streak = 0, toplam = 0) {
+function rozetleriOlustur(streak, toplam) {
     let r = [];
     if (streak >= 3)  r.push({e: "🌱", t: "3 Günlük Seri!"});
     if (streak >= 10) r.push({e: "🔥", t: "10 Günlük Seri!"});
     if (toplam >= 100)  r.push({e: "🎖️", t: "100 Sayfa!"});
+    if (toplam >= 1000) r.push({e: "👑", t: "Kütüphane Kralı!"});
     return r.length === 0 ? `🐣` : r.map(i => `<span class="medal-icon" title="${i.t}">${i.e}</span>`).join("");
 }
 
-// ANA TAKİP
 auth.onAuthStateChanged(user => {
-    console.log("Kullanıcı Durumu:", user ? "Giriş Yapmış" : "Giriş Yapılmamış");
-    
     if (user) {
         db.collection('users').doc(user.uid).onSnapshot(doc => {
-            if (!doc.exists) { console.warn("Kullanıcı verisi bulunamadı!"); return; }
-            const data = doc.data();
-            const h = data.balonYuksekligi || 0;
+            if (!doc.exists) return;
+            const d = doc.data();
+            const h = d.balonYuksekligi || 0;
 
-            if (data.rol === 'admin' || data.rol === 'superadmin' || data.email === 'admin@ucurbalonu.com') {
-                if (!IS_SUPERADMIN_PAGE) { window.location.href = 'superadmin.html'; }
+            if (d.rol === 'admin' || d.rol === 'superadmin' || d.email === 'admin@ucurbalonu.com') {
+                if (!IS_SUPERADMIN_PAGE) window.location.href = 'superadmin.html';
                 else { gosterGizle('superadmin-area', 'block'); window.illeriDoldur(); }
-            } else if (data.rol === 'ogretmen') {
-                if (!IS_ADMIN_PAGE) { window.location.href = 'admin.html'; }
-                else { 
-                    gosterGizle('admin-student-list', 'block'); // Varsa admin listesini göster
-                    window.ogrenciListele(data.okul, data.sinif, data.sube); 
-                    window.illeriDoldur(); 
-                }
+            } else if (d.rol === 'ogretmen') {
+                if (!IS_ADMIN_PAGE) window.location.href = 'admin.html';
+                else { window.ogrenciListele(d.okul, d.sinif, d.sube); window.balonlariGoster('admin-balloon-container', d.okul, d.sinif, d.sube, true); }
             } else {
-                if (!IS_INDEX_PAGE) { window.location.href = 'index.html'; }
+                if (!IS_INDEX_PAGE) window.location.href = 'index.html';
                 else {
-                    gosterGizle('auth-area', 'none'); 
-                    gosterGizle('user-panel', 'block');
+                    gosterGizle('auth-area', 'none'); gosterGizle('user-panel', 'block');
                     if(document.getElementById('display-height')) document.getElementById('display-height').innerText = h;
-                    if(document.getElementById('welcome-msg')) document.getElementById('welcome-msg').innerText = `Selam, ${data.ogrenciAdSoyad}!`;
-                    
                     const sky = document.getElementById('main-sky');
-                    if (sky) {
-                        let pos = 100 - (h / 5); if (pos < 0) pos = 0;
-                        sky.style.backgroundPosition = `center ${pos}%`;
-                    }
-                    window.balonlariGoster('balloon-container', data.okul, data.sinif, data.sube, false);
+                    if (sky) { let pos = 100 - (h / 5); sky.style.backgroundPosition = `center ${pos < 0 ? 0 : pos}%`; }
+                    const m = document.getElementById('medalyalar');
+                    if(m) m.innerHTML = `<div class="medal-shelf">🔥 ${d.streak || 0} GÜN | ${rozetleriOlustur(d.streak || 0, d.toplamOkunanSayfa || 0)}</div>`;
+                    window.balonlariGoster('balloon-container', d.okul, d.sinif, d.sube, false);
                 }
             }
         });
-    } else {
-        if (!IS_INDEX_PAGE) { window.location.href = 'index.html'; }
-        else {
-            gosterGizle('auth-area', 'block');
-            gosterGizle('user-panel', 'none');
-            window.illeriDoldur();
-        }
-    }
+    } else { if (!IS_INDEX_PAGE) window.location.href = 'index.html'; window.illeriDoldur(); }
 });
 
-// GÜVENLİ OKUL/İL LİSTELEME
+window.yukseklikArtir = function() {
+    const s = parseInt(document.getElementById('sayfaSayisi').value);
+    if (!s || s <= 0) return alert("Kaç sayfa okudun?");
+    const ref = db.collection('users').doc(auth.currentUser.uid);
+    const bugun = bugunTarihiniAl();
+    ref.get().then(doc => {
+        const d = doc.data();
+        if (d.sonOkumaTarihi === bugun) return alert("Bugün zaten uçurdun!");
+        let streak = (d.sonOkumaTarihi === dunTarihiniAl()) ? (d.streak || 0) + 1 : 1;
+        return ref.update({ toplamOkunanSayfa: (d.toplamOkunanSayfa || 0) + s, balonYuksekligi: (d.toplamOkunanSayfa || 0) + s, sonOkumaTarihi: bugun, streak: streak });
+    }).then(() => document.getElementById('sayfaSayisi').value = '');
+};
+
 window.illeriDoldur = () => {
-    try {
-        const target = (IS_ADMIN_PAGE || IS_SUPERADMIN_PAGE) ? "yeniOkulIl" : "sehir";
-        const el = document.getElementById(target);
-        if (el && typeof ilVerisi !== 'undefined') {
-            el.innerHTML = '<option value="">İl Seçiniz</option>';
-            Object.keys(ilVerisi).sort().forEach(il => { el.innerHTML += `<option value="${il}">${il}</option>`; });
-        }
-    } catch (e) { console.error("Şehirler yüklenirken hata:", e); }
+    const t = (IS_ADMIN_PAGE || IS_SUPERADMIN_PAGE) ? "yeniOkulIl" : "sehir";
+    const el = document.getElementById(t);
+    if (el && typeof ilVerisi !== 'undefined') {
+        el.innerHTML = '<option value="">İl Seçiniz</option>';
+        Object.keys(ilVerisi).sort().forEach(il => { el.innerHTML += `<option value="${il}">${il}</option>`; });
+    }
 };
 
 window.ilceleriYukle = () => {
-    try {
-        const isSpecial = IS_ADMIN_PAGE || IS_SUPERADMIN_PAGE;
-        const sehir = document.getElementById(isSpecial ? "yeniOkulIl" : "sehir").value;
-        const el = document.getElementById(isSpecial ? "yeniOkulIlce" : "ilce");
-        if (el && sehir && ilVerisi[sehir]) {
-            el.innerHTML = '<option value="">İlçe Seçiniz</option>';
-            ilVerisi[sehir].forEach(i => { el.innerHTML += `<option value="${i}">${i}</option>`; });
-        }
-    } catch (e) { console.warn("İlçeler yüklenemedi:", e); }
+    const isS = IS_ADMIN_PAGE || IS_SUPERADMIN_PAGE;
+    const s = document.getElementById(isS ? "yeniOkulIl" : "sehir").value;
+    const el = document.getElementById(isS ? "yeniOkulIlce" : "ilce");
+    if (el && s) {
+        el.innerHTML = '<option value="">İlçe Seçiniz</option>';
+        ilVerisi[s].forEach(i => { el.innerHTML += `<option value="${i}">${i}</option>`; });
+    }
 };
+window.yeniOkulIlceleriYukle = () => window.ilceleriYukle();
 
 window.okullariYukle = () => {
-    const il = document.getElementById("sehir").value;
-    const ilce = document.getElementById("ilce").value;
-    const el = document.getElementById("okul");
-    if(!el) return;
+    const il = document.getElementById("sehir").value, ilce = document.getElementById("ilce").value, el = document.getElementById("okul");
     db.collection("sistem").doc("okulListesi").get().then(doc => {
         el.innerHTML = '<option value="">Okul Seçiniz</option>';
-        if (doc.exists && doc.data()[`${il}_${ilce}`]) {
-            doc.data()[`${il}_${ilce}`].sort().forEach(o => { el.innerHTML += `<option value="${o}">${o}</option>`; });
-        }
+        if (doc.exists && doc.data()[`${il}_${ilce}`]) doc.data()[`${il}_${ilce}`].sort().forEach(o => { el.innerHTML += `<option value="${o}">${o}</option>`; });
     });
 };
 
-// DİĞER FONKSİYONLAR (Giriş, Kayıt, Çıkış)
-window.login = () => { 
-    const e = document.getElementById('loginEmail').value;
-    const p = document.getElementById('loginPassword').value;
-    auth.signInWithEmailAndPassword(e, p).catch(err => alert("Giriş Hatası: " + err.message));
+window.okulEkle = () => {
+    const il = document.getElementById("yeniOkulIl").value, ilce = document.getElementById("yeniOkulIlce").value, ad = document.getElementById("yeniOkulAd").value;
+    if(!il || !ilce || !ad) return alert("Eksik!");
+    db.collection("sistem").doc("okulListesi").set({ [`${il}_${ilce}`]: firebase.firestore.FieldValue.arrayUnion(ad) }, {merge:true}).then(() => alert("Eklendi!"));
 };
-window.logout = () => auth.signOut().then(() => window.location.href = 'index.html');
-window.register = () => {
-    const e = document.getElementById('email').value, p = document.getElementById('password').value;
-    const r = document.getElementById('rolSecimi').value;
-    auth.createUserWithEmailAndPassword(e, p).then(res => {
-        return db.collection("users").doc(res.user.uid).set({
-            ogrenciAdSoyad: document.getElementById('ogrenciAdSoyad').value,
-            okul: document.getElementById('okul').value, sinif: document.getElementById('sinif').value, sube: document.getElementById('sube').value,
-            rol: (r === 'admin' ? 'ogretmen' : 'ogrenci'), balonYuksekligi: 0, toplamOkunanSayfa: 0, streak: 0
-        });
-    }).then(() => location.reload()).catch(err => alert(err.message));
-};
-
-window.showRegisterForm = (r) => { gosterGizle('role-selection-area', 'none'); gosterGizle('dynamic-register-form', 'block'); document.getElementById('rolSecimi').value = r; window.illeriDoldur(); };
-window.showLoginForm = () => { gosterGizle('role-selection-area', 'none'); gosterGizle('login-area', 'block'); };
-window.resetRoleSelection = () => { gosterGizle('dynamic-register-form', 'none'); gosterGizle('login-area', 'none'); gosterGizle('role-selection-area', 'block'); };
 
 window.balonlariGoster = (c, o, si, su, isAdmin) => {
     const container = document.getElementById(c); if (!container) return;
@@ -148,9 +110,36 @@ window.balonlariGoster = (c, o, si, su, isAdmin) => {
         container.innerHTML = '';
         qs.forEach(doc => {
             const d = doc.data(); if (d.rol === 'ogretmen') return;
-            const h = Math.min(d.balonYuksekligi || 0, 350);
-            container.innerHTML += `<div class="balloon" style="bottom:${h}px; left:${Math.random()*80+10}%; background-color:${d.balloonColor || '#3498db'};">
-                <div class="balloon-label">${d.ogrenciAdSoyad}</div></div>`;
+            const isMe = (auth.currentUser && doc.id === auth.currentUser.uid);
+            container.innerHTML += `<div class="balloon" style="bottom:${Math.min(d.balonYuksekligi || 0, 300)}px; left:${Math.random()*80+10}%; background-color:${d.balloonColor || '#3498db'};"><div class="balloon-label">${d.ogrenciAdSoyad}</div></div>`;
         });
     });
 };
+
+window.ogrenciListele = (okul, sinif, sube) => {
+    const list = document.getElementById('admin-student-list');
+    db.collection('users').where('okul', '==', okul).where('sinif', '==', sinif).where('sube', '==', sube).where('rol', '==', 'ogrenci').onSnapshot(qs => {
+        list.innerHTML = '';
+        qs.forEach(doc => {
+            const s = doc.data();
+            list.innerHTML += `<div style="display:flex; justify-content:space-between; background:white; padding:10px; margin-top:5px; border-radius:10px;"><b>${s.ogrenciAdSoyad}</b> <span>${s.balonYuksekligi}m</span></div>`;
+        });
+    });
+};
+
+window.login = () => auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value).catch(e => alert(e.message));
+window.logout = () => auth.signOut().then(() => window.location.href = 'index.html');
+window.register = () => {
+    const e = document.getElementById('email').value, p = document.getElementById('password').value, r = document.getElementById('rolSecimi').value;
+    auth.createUserWithEmailAndPassword(e, p).then(res => {
+        return db.collection("users").doc(res.user.uid).set({
+            ogrenciAdSoyad: document.getElementById('ogrenciAdSoyad').value,
+            okul: document.getElementById('okul').value, sinif: document.getElementById('sinif').value, sube: document.getElementById('sube').value,
+            rol: (r === 'admin' ? 'ogretmen' : 'ogrenci'), balonYuksekligi: 0, toplamOkunanSayfa: 0, streak: 0, balloonColor: '#'+Math.floor(Math.random()*16777215).toString(16)
+        });
+    }).then(() => location.reload()).catch(err => alert(err.message));
+};
+
+window.showRegisterForm = (r) => { gosterGizle('role-selection-area', 'none'); gosterGizle('dynamic-register-form', 'block'); document.getElementById('rolSecimi').value = r; window.illeriDoldur(); };
+window.showLoginForm = () => { gosterGizle('role-selection-area', 'none'); gosterGizle('login-area', 'block'); };
+window.resetRoleSelection = () => { gosterGizle('dynamic-register-form', 'none'); gosterGizle('login-area', 'none'); gosterGizle('role-selection-area', 'block'); };
