@@ -14,11 +14,11 @@
                 <p>Kitap okudukça balonunu gökyüzüne gönder!</p>
                 <button onclick="showRegisterForm('user')">Öğrenci Kaydı</button>
                 <button onclick="showRegisterForm('admin')">Öğretmen Kaydı</button>
-                <p>Zaten hesabın var mı? <a href="javascript:void(0);" onclick="showLoginForm()">Giriş Yap</a></p>
+                <p>Hesabın var mı? <a href="javascript:void(0);" onclick="showLoginForm()">Giriş Yap</a></p>
             </div>
 
             <div id="dynamic-register-form" style="display:none;">
-                <h2 id="form-title">Kayıt Ol</h2>
+                <h2>Kayıt Ol</h2>
                 <input type="hidden" id="rolSecimi">
                 <input type="text" id="ogrenciAdSoyad" placeholder="Adınız Soyadınız">
                 <input type="text" id="takmaAd" placeholder="Balon Etiketi (Rumuz)">
@@ -49,18 +49,10 @@
                 <h2 id="welcome-msg">Selam!</h2>
                 <button onclick="logout()" style="background:#e74c3c; padding: 8px 15px; font-size: 13px;">Çıkış Yap</button>
             </div>
-            
             <div id="medalyalar"></div>
-            
-            <div class="sky">
-                <div id="main-sky">
-                    <div id="balloon-container"></div>
-                </div>
-            </div>
-            
+            <div class="sky"><div id="main-sky"><div id="balloon-container"></div></div></div>
             <div id="action-area">
                 <p>Balonun şu an <strong><span id="display-height">0</span> metre</strong> yüksekte!</p>
-                <p style="font-size: 12px; color: #e67e22; margin-top: 5px;">⏰ Günde sadece 1 kez giriş yapabilirsin.</p>
                 <div class="input-group" style="display: flex; gap: 5px; margin-top: 15px;">
                     <input type="number" id="sayfaSayisi" placeholder="Kaç sayfa okudun?" style="flex: 1;">
                     <button onclick="yukseklikArtir()" style="flex: 1;">Uçur! 🚀</button>
@@ -68,7 +60,6 @@
             </div>
         </div>
     </div>
-
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
