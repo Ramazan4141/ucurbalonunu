@@ -7,7 +7,7 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; color: #3
 .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
 
 /* GİRİŞ EKRANI DÜZENİ */
-h1 { margin-bottom: 10px; color: #2c3e50; }
+h1 { margin-bottom: 10px; color: #2c3e100; }
 p { margin-bottom: 20px; color: #7f8c8d; }
 .button-group { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
 input, select { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #edeff2; border-radius: 10px; outline: none; }
