@@ -9,7 +9,7 @@ body {
     min-height: 100vh; 
 }
 
-/* ANA KUTU (Sevdiğin Genişlik ve Stil) */
+/* ANA KUTU */
 .container { 
     background: white; 
     padding: 35px; 
@@ -37,7 +37,7 @@ input, select {
 }
 input:focus, select:focus { border-color: #3498db; }
 
-/* BUTONLAR (Eski Renk Paleti) */
+/* BUTONLAR */
 button { 
     background: #3498db; 
     color: white; 
@@ -53,13 +53,13 @@ button {
 }
 button:hover { background: #2980b9; transform: translateY(-2px); }
 
-/* ÖĞRENCİ PANELİNDEKİ ÖZEL BUTONLAR */
+/* PANEL BUTONLARI */
 .secondary-btn { background: #95a5a6; }
 .secondary-btn:hover { background: #7f8c8d; }
 .logout-btn { background: #e74c3c; width: auto; padding: 8px 15px; font-size: 13px; margin: 0; }
 .logout-btn:hover { background: #c0392b; }
 
-/* 🏔️ GÖKYÜZÜ (Dikey AI Resmin İçin) */
+/* 🏔️ GÖKYÜZÜ (Parallax) */
 .sky {
     height: 420px;
     position: relative;
@@ -68,13 +68,13 @@ button:hover { background: #2980b9; transform: translateY(-2px); }
     margin: 20px 0;
     border: 4px solid #fff;
     box-shadow: inset 0 0 30px rgba(0,0,0,0.1);
-    background: #4facfe; /* Resim yüklenene kadar mavi fon */
+    background: #4facfe; 
 }
 
 #main-sky {
     width: 100%;
     height: 100%;
-    background-image: url('master-bg.jpg'); /* AI görselin */
+    background-image: url('master-bg.jpg');
     background-size: 100% auto;
     background-position: center bottom;
     transition: background-position 2.5s cubic-bezier(0.2, 0.4, 0.3, 1);
@@ -94,9 +94,68 @@ button:hover { background: #2980b9; transform: translateY(-2px); }
     box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: #333;
 }
 
-/* 🎖️ ROZET RAFI */
+/* 🎖️ ROZETLER VE MOBİL TOOLTIP DESTEĞİ */
 .medal-shelf { 
     display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px; 
     background: #fdfdfd; border-radius: 30px; border: 2px dashed #d1d8e0; margin-bottom: 10px; 
 }
-.medal-icon { font-size: 26px; cursor: help; }
+
+.medal-icon { 
+    font-size: 26px; 
+    cursor: help; 
+    position: relative; 
+    display: inline-block;
+}
+
+/* Mobilde ve Masaüstünde Tıklayınca/Üzerine Gelince Çıkan İsim */
+.medal-icon::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(44, 62, 80, 0.95);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+/* Masaüstünde Hover, Mobilde Tap (Dokunma) ile Gösterim */
+.medal-icon:hover::after, .medal-icon:active::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 👨‍🏫 ÖĞRETMEN PANELİ ÖĞRENCİ KARTLARI */
+#admin-student-list { margin-top: 20px; max-height: 400px; overflow-y: auto; padding: 5px; }
+
+.student-admin-card { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    background: #ffffff; 
+    padding: 15px; 
+    margin-top: 10px; 
+    border-radius: 15px; 
+    border-left: 6px solid #3498db; 
+    text-align: left;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.student-info b { font-size: 16px; color: #2c3e50; }
+.student-stats { text-align: right; }
+.student-stats span { color: #2ecc71; font-weight: bold; font-size: 18px; }
+
+/* MOBİL İÇİN KÜÇÜK AYARLAR */
+@media (max-width: 480px) {
+    .container { padding: 20px; }
+    h1 { font-size: 24px; }
+    .sky { height: 350px; }
+}
